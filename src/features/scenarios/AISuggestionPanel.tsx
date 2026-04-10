@@ -83,7 +83,7 @@ export const AISuggestionPanel: React.FC< AISuggestionPanelProps> = ({ dataset, 
   return (
     <div className="ai-suggestion-container">
       <div className="ai-header">
-        <div className="ai-badge">Optional Simulation Intelligence</div>
+        <div style={{ fontSize: '0.65rem', fontWeight: 700, color: '#666666', textTransform: 'uppercase', marginBottom: '0.5rem', border: '1px solid #E5E7EB', padding: '0.2rem 0.5rem', display: 'inline-block', borderRadius: '2px' }}>Simulation Intelligence</div>
         <h3>Scenario Design Suggestions</h3>
         <p className="description">Model-generated curriculum refinements for review. These suggestions are <strong>non-binding</strong> and require academic oversight.</p>
       </div>

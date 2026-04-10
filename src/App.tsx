@@ -112,27 +112,48 @@ function App() {
 
   return (
     <div className="container">
+      <nav style={{ padding: '1rem 0', marginBottom: '1rem' }}>
+        <a 
+          href="https://www.cloudpedagogy.com/" 
+          target="_blank" 
+          rel="noopener noreferrer"
+          style={{ 
+            fontSize: '0.75rem', 
+            textDecoration: 'none', 
+            color: '#666666',
+            fontWeight: 500,
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase'
+          }}
+        >
+          CloudPedagogy
+        </a>
+      </nav>
+
       <header>
         <div className="header-top">
-          <h1>Curriculum Simulation Tool</h1>
+          <div>
+            <div style={{ fontSize: '0.75rem', color: '#666666', marginBottom: '0.25rem', textTransform: 'uppercase', fontWeight: 600 }}>Curriculum Simulation Tool</div>
+            <h1>Academic Programme Modelling</h1>
+          </div>
           <div className="controls">
             <button type="button" className="btn btn-primary" onClick={handleLoadDemo}>Load Public Health Baseline</button>
             <button type="button" className="btn" onClick={handlePersist}>Persist Baseline</button>
-            <button type="button" className="btn btn-danger" onClick={handleClear}>Reset Environment</button>
+            <button type="button" className="btn btn-ghost" onClick={handleClear}>Reset Environment</button>
             <button type="button" className="btn btn-ghost" onClick={handleImport}>Import Dataset</button>
             <button type="button" className="btn btn-ghost" onClick={handleExport}>Export Dataset</button>
           </div>
         </div>
         {statusMessage && (
-          <div className="status-toast">
+          <div className="status-toast" style={{ marginBottom: '2rem' }}>
             <span className="status-icon">✓</span> {statusMessage}
           </div>
         )}
         <p className="description">
-          A local-first environment for the analysis and simulation of curriculum coherence, workload distribution, and professional capability development.
+          A high-fidelity environment for the simulation of curriculum coherence, workload distribution, and professional capability development.
         </p>
         <div className="disclaimer">
-          <strong>Academic Oversight:</strong> This tool is designed to support programme teams and curriculum designers through structured simulation. It does not prescribe specific pedagogical decisions or replace professional academic judgement.
+          <strong>Institutional Governance:</strong> This system is designed to support governance frameworks and academic quality assurance. It provides analytical support for curriculum design decisions but does not replace professional academic judgement.
         </div>
       </header>
 
@@ -168,7 +189,7 @@ function App() {
         <div className="scenario-impact-container">
           {dataset && baseDataset && (
             <div className="scenario-comparison-section">
-              <h3>Scenario Comparison & Impact Analysis</h3>
+              <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 600 }}>Scenario Comparison & Impact Analysis</h2>
               <ScenarioDiff base={baseDataset} current={dataset} />
             </div>
           )}
@@ -177,8 +198,8 @@ function App() {
 
       {dataset && (
         <>
-          <section className="simulation-controls-section">
-            <h3>Scenario Testing & Modelling</h3>
+          <section className="simulation-controls-section" style={{ marginTop: '4rem', borderTop: '1px solid #E5E7EB', paddingTop: '3rem' }}>
+            <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 600 }}>Scenario Testing & Modelling</h2>
             <ScenarioEditor 
               dataset={dataset} 
               onUpdate={handleUpdateDataset} 
@@ -191,36 +212,49 @@ function App() {
               dataset={dataset} 
               onApplySuggestion={handleUpdateDataset} 
             />
-            <div className="view-container">
-              <h3>Structural Risk Signals</h3>
+            <div className="view-container" style={{ marginTop: '4rem', borderTop: '1px solid #E5E7EB', paddingTop: '3rem' }}>
+              <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 600 }}>Structural Risk Signals</h2>
               <RiskSignalsPanel dataset={dataset} />
             </div>
-            <div className="view-container">
-              <h3>Progression Modelling: Curriculum Timeline</h3>
+            <div className="view-container" style={{ marginTop: '4rem', borderTop: '1px solid #E5E7EB', paddingTop: '3rem' }}>
+              <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 600 }}>Progression Modelling: Curriculum Timeline</h2>
               <TimelineView dataset={dataset} />
             </div>
-            <div className="view-container">
-              <h3>Workload Distribution Analysis</h3>
+            <div className="view-container" style={{ marginTop: '4rem', borderTop: '1px solid #E5E7EB', paddingTop: '3rem' }}>
+              <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 600 }}>Workload Distribution Analysis</h2>
               <WorkloadAnalyzer dataset={dataset} />
             </div>
-            <div className="view-container">
-              <h3>Assessment Pattern Analysis</h3>
+            <div className="view-container" style={{ marginTop: '4rem', borderTop: '1px solid #E5E7EB', paddingTop: '3rem' }}>
+              <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 600 }}>Assessment Pattern Analysis</h2>
               <AssessmentAnalyzer dataset={dataset} />
             </div>
-            <div className="view-container">
-              <h3>Capability Development: Skill Progression Mapping</h3>
+            <div className="view-container" style={{ marginTop: '4rem', borderTop: '1px solid #E5E7EB', paddingTop: '3rem' }}>
+              <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 600 }}>Capability Development: Skill Progression Mapping</h2>
               <SkillProgressionView dataset={dataset} />
             </div>
-            <MethodologyPanel />
+            <div style={{ marginTop: '4rem', borderTop: '1px solid #E5E7EB', paddingTop: '3rem' }}>
+              <MethodologyPanel />
+            </div>
           </section>
         </>
       )}
 
       {!dataset && (
         <div className="empty-state">
-          <p>No curriculum data loaded. Use "Load Demo Curriculum" to get started.</p>
+          <p>No curriculum data loaded. Use "Load Public Health Baseline" to get started.</p>
         </div>
       )}
+
+      <footer style={{ 
+        marginTop: '6rem', 
+        padding: '3rem 0', 
+        borderTop: '1px solid #E5E7EB', 
+        textAlign: 'center',
+        color: '#666666',
+        fontSize: '0.8125rem'
+      }}>
+        CloudPedagogy · Governance-ready AI and curriculum systems
+      </footer>
     </div>
   );
 }

@@ -51,7 +51,9 @@ export const RiskSignalsPanel: React.FC<RiskSignalsPanelProps> = ({ dataset }) =
                 <ul className="risk-list">
                   {catSignals.map((signal, idx) => (
                     <li key={idx} className={`risk-item severity-${signal.severity}`}>
-                      <span className="risk-icon">{signal.severity === 'critical' ? '⚠️' : 'ℹ️'}</span>
+                      <span className="risk-label" style={{ fontWeight: 700, fontSize: '0.65rem', textTransform: 'uppercase', marginRight: '0.5rem', minWidth: '4.5rem' }}>
+                        {signal.severity}
+                      </span>
                       <span className="risk-message">{signal.message}</span>
                     </li>
                   ))}
