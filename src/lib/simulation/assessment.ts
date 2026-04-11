@@ -3,6 +3,7 @@ import type { SimulationDataset, Assessment } from '../../types';
 export interface AssessmentCluster {
   week: number;
   assessments: Assessment[];
+  totalWeight: number;
   isHighStakes: boolean;
 }
 
@@ -23,7 +24,8 @@ export const analyzeAssessments = (dataset: SimulationDataset) => {
     return {
       week,
       assessments: weekAsmts,
-      isHighStakes: totalWeight >= 80 || weekAsmts.length >= 3
+      totalWeight,
+      isHighStakes: totalWeight >= 50 || weekAsmts.length >= 3
     };
   });
 
@@ -43,13 +45,21 @@ export const analyzeAssessments = (dataset: SimulationDataset) => {
     if (cluster.assessments.length >= 3) {
       signals.push({
         type: 'clustering',
-        message: `High concentration of professional assessment deadlines in Week ${cluster.week}`,
+        message: `Assessment Congestion: ${cluster.assessments.length} deadlines in Week ${cluster.week}`,
         severity: 'critical'
       });
-    } else if (cluster.isHighStakes) {
+    }
+    
+    if (cluster.totalWeight >= 50) {
       signals.push({
         type: 'load',
-        message: `High-stakes evaluation load in Week ${cluster.week}`,
+        message: `High-Stakes Cluster: Combined weight of ${cluster.totalWeight}% in Week ${cluster.week}`,
+        severity: 'critical'
+      });
+    } else if (cluster.assessments.length === 2) {
+      signals.push({
+        type: 'clustering',
+        message: `Assessment overlap detected in Week ${cluster.week}`,
         severity: 'warning'
       });
     }

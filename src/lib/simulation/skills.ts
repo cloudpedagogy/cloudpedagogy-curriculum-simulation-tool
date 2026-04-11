@@ -1,4 +1,10 @@
-import type { SimulationDataset } from '../../types';
+import type { SimulationDataset, TrajectoryMode } from '../../types';
+
+const GROWTH_FUNCTIONS: Record<TrajectoryMode, (count: number) => number> = {
+  linear: (count) => Math.min(100, count * 20),
+  accelerated: (count) => Math.min(100, Math.pow(count, 1.5) * 15),
+  plateau: (count) => Math.min(100, Math.log2(count + 1) * 40)
+};
 
 export interface SkillUsage {
   week: number;
@@ -12,6 +18,7 @@ export interface SkillProgression {
   usages: SkillUsage[];
   firstIntroWeek: number | null;
   count: number;
+  growthValue: number; // 0-100 based on trajectory
 }
 
 export interface SkillSignal {
@@ -21,7 +28,9 @@ export interface SkillSignal {
 }
 
 export const analyzeSkillProgression = (dataset: SimulationDataset) => {
-  const { skills, modules, workload } = dataset;
+  const { skills, modules, workload, settings } = dataset;
+  const mode = settings?.trajectoryMode || 'linear';
+  const growthFn = GROWTH_FUNCTIONS[mode];
   
   const progression: SkillProgression[] = skills.map(skill => {
     const usages: SkillUsage[] = [];
@@ -61,7 +70,8 @@ export const analyzeSkillProgression = (dataset: SimulationDataset) => {
       skillName: skill.name,
       usages,
       firstIntroWeek,
-      count: usages.length
+      count: usages.length,
+      growthValue: growthFn(usages.length)
     };
   });
 

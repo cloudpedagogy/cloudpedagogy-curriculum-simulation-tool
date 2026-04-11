@@ -3,6 +3,20 @@ export interface LearningOutcome {
   description: string;
 }
 
+export type TrajectoryMode = 'linear' | 'accelerated' | 'plateau';
+
+export interface Persona {
+  id: string;
+  name: string;
+  description: string;
+  workloadMultiplier: number;
+}
+
+export interface ScenarioSettings {
+  activePersonaId: string;
+  trajectoryMode: TrajectoryMode;
+}
+
 export interface Skill {
   id: string;
   name: string;
@@ -34,8 +48,11 @@ export interface Module {
 }
 
 export interface SimulationDataset {
+  id?: string;
+  name?: string;
   modules: Module[];
   assessments: Assessment[];
   skills: Skill[];
   workload: WorkloadProfile[];
+  settings?: ScenarioSettings;
 }

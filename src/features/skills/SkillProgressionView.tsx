@@ -23,7 +23,16 @@ export const SkillProgressionView: React.FC<SkillProgressionViewProps> = ({ data
             {progression.map((p) => (
               <div key={p.skillId} className="skill-row">
                 <div className="skill-meta">
-                  <span className="skill-name">{p.skillName}</span>
+                  <div className="flex justify-between items-center w-full mb-1">
+                    <span className="skill-name">{p.skillName}</span>
+                    <span className="text-[10px] font-bold text-slate-500">{p.growthValue.toFixed(0)}% Mastery</span>
+                  </div>
+                  <div className="w-full bg-slate-100 h-1 rounded-full overflow-hidden">
+                    <div 
+                      className="bg-emerald-500 h-full transition-all duration-1000" 
+                      style={{ width: `${p.growthValue}%` }}
+                    />
+                  </div>
                 </div>
                 <div className="skill-timeline">
                   {Array.from({ length: 12 }, (_, i) => i + 1).map(week => {

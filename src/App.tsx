@@ -7,11 +7,14 @@ import { WorkloadAnalyzer } from './features/workload/WorkloadAnalyzer';
 import { AssessmentAnalyzer } from './features/assessments/AssessmentAnalyzer';
 import { SkillProgressionView } from './features/skills/SkillProgressionView';
 import { ScenarioEditor } from './features/scenarios/ScenarioEditor';
-import { ScenarioDiff } from './features/scenarios/ScenarioDiff';
 import { ValidationWarnings } from './features/governance/ValidationWarnings';
 import { MethodologyPanel } from './features/governance/MethodologyPanel';
 import { RiskSignalsPanel } from './features/governance/RiskSignalsPanel';
 import { AISuggestionPanel } from './features/scenarios/AISuggestionPanel';
+import { PersonaSelector } from './features/personas/PersonaSelector';
+import { TrajectorySelector } from './features/skills/TrajectorySelector';
+import { ComparisonDashboard } from './features/scenarios/ComparisonDashboard';
+import { PERSONAS } from './data/personas';
 
 function App() {
   const [dataset, setDataset] = useState<SimulationDataset | null>(null);
@@ -28,16 +31,30 @@ function App() {
   useEffect(() => {
     const savedDataset = storage.loadDataset();
     if (savedDataset) {
-      setDataset(savedDataset);
-      setBaseDataset(savedDataset);
+      const initialized = {
+        ...savedDataset,
+        settings: savedDataset.settings || {
+          activePersonaId: 'ft',
+          trajectoryMode: 'linear' as const
+        }
+      };
+      setDataset(initialized);
+      setBaseDataset(initialized);
     }
   }, []);
 
   const handleLoadDemo = () => {
     console.log('Loading Public Health Baseline...');
-    setDataset(demoDataset);
-    setBaseDataset(demoDataset);
-    storage.saveDataset(demoDataset);
+    const initialDataset = {
+      ...demoDataset,
+      settings: {
+        activePersonaId: 'ft',
+        trajectoryMode: 'linear' as const
+      }
+    };
+    setDataset(initialDataset);
+    setBaseDataset(initialDataset);
+    storage.saveDataset(initialDataset);
     setStatusMessage('Baseline curriculum loaded.');
   };
 
@@ -61,6 +78,30 @@ function App() {
       console.log('Baseline persisted successfully.');
     } else {
       console.warn('Persist failed: No dataset loaded.');
+    }
+  };
+
+  const handleUpdatePersona = (id: string) => {
+    if (dataset) {
+      handleUpdateDataset({
+        ...dataset,
+        settings: {
+          ...dataset.settings!,
+          activePersonaId: id
+        }
+      });
+    }
+  };
+
+  const handleUpdateTrajectory = (mode: 'linear' | 'accelerated' | 'plateau') => {
+    if (dataset) {
+      handleUpdateDataset({
+        ...dataset,
+        settings: {
+          ...dataset.settings!,
+          trajectoryMode: mode
+        }
+      });
     }
   };
 
@@ -144,6 +185,48 @@ function App() {
             <button type="button" className="btn btn-ghost" onClick={handleExport}>Export Dataset</button>
           </div>
         </div>
+
+        {dataset && (
+          <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '2rem' }}>
+            <span className="badge" style={{ 
+              backgroundColor: '#EFF6FF', 
+              color: '#1E40AF', 
+              fontSize: '0.7rem', 
+              fontWeight: 700, 
+              padding: '0.25rem 0.75rem', 
+              borderRadius: '9999px',
+              border: '1px solid #DBEAFE'
+            }}>
+              👤 Persona: {PERSONAS.find(p => p.id === dataset.settings?.activePersonaId)?.name || PERSONAS[0].name}
+            </span>
+            {baseDataset && JSON.stringify(dataset) !== JSON.stringify(baseDataset) ? (
+              <span className="badge" style={{ 
+                backgroundColor: '#FFFBEB', 
+                color: '#92400E', 
+                fontSize: '0.7rem', 
+                fontWeight: 700, 
+                padding: '0.25rem 0.75rem', 
+                borderRadius: '9999px',
+                border: '1px solid #FEF3C7'
+              }}>
+                ⚡ Modified Scenario Active
+              </span>
+            ) : (
+              <span className="badge" style={{ 
+                backgroundColor: '#ECFDF5', 
+                color: '#065F46', 
+                fontSize: '0.7rem', 
+                fontWeight: 700, 
+                padding: '0.25rem 0.75rem', 
+                borderRadius: '9999px',
+                border: '1px solid #D1FAE5'
+              }}>
+                📋 Baseline Configuration
+              </span>
+            )}
+          </div>
+        )}
+
         {statusMessage && (
           <div className="status-toast" style={{ marginBottom: '2rem' }}>
             <span className="status-icon">✓</span> {statusMessage}
@@ -186,13 +269,21 @@ function App() {
       </main>
 
       {dataset && (
-        <div className="scenario-impact-container">
-          {dataset && baseDataset && (
-            <div className="scenario-comparison-section">
-              <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 600 }}>Scenario Comparison & Impact Analysis</h2>
-              <ScenarioDiff base={baseDataset} current={dataset} />
-            </div>
-          )}
+        <div className="simulation-settings-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '3rem' }}>
+          <PersonaSelector 
+            activePersonaId={dataset.settings?.activePersonaId || 'ft'} 
+            onSelectPersona={handleUpdatePersona} 
+          />
+          <TrajectorySelector 
+            activeMode={dataset.settings?.trajectoryMode || 'linear'} 
+            onSelectMode={handleUpdateTrajectory} 
+          />
+        </div>
+      )}
+
+      {dataset && baseDataset && (
+        <div className="comparison-section" style={{ marginBottom: '4rem' }}>
+          <ComparisonDashboard baseline={baseDataset} current={dataset} />
         </div>
       )}
 
