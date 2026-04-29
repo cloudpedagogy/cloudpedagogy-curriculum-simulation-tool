@@ -15,6 +15,7 @@ import { PersonaSelector } from './features/personas/PersonaSelector';
 import { TrajectorySelector } from './features/skills/TrajectorySelector';
 import { ComparisonDashboard } from './features/scenarios/ComparisonDashboard';
 import { PERSONAS } from './data/personas';
+import { CapabilityGovernanceLayer } from './features/governance/CapabilityGovernanceLayer';
 
 function App() {
   const [dataset, setDataset] = useState<SimulationDataset | null>(null);
@@ -325,6 +326,9 @@ function App() {
             </div>
             <div style={{ marginTop: '4rem', borderTop: '1px solid #E5E7EB', paddingTop: '3rem' }}>
               <MethodologyPanel />
+            </div>
+            <div style={{ marginTop: '4rem', borderTop: '1px solid #E5E7EB', paddingTop: '3rem' }}>
+              <CapabilityGovernanceLayer dataset={dataset} onUpdate={handleUpdateDataset} />
             </div>
           </section>
         </>

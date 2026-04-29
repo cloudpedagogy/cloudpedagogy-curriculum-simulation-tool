@@ -47,3 +47,10 @@ This application models and visualizes the student experience by simulating work
 ---
 ### 10. Tips
 - Always check the baseline configuration before running modified scenarios to understand the initial "stress profile" of your programme.
+
+---
+### 11. Capability and Governance
+- **What the tool does:** This tool includes a lightweight capability and governance layer designed to make AI use and professional decision-making visible.
+- **How capability is developed:** By filling out the optional fields (like AI involvement and assumptions), you practice reflecting on the structured use of AI in your workflow.
+- **How governance is supported:** The optional fields ensure that rationale, risks, and human review notes are explicitly recorded alongside the simulation data.
+- **Optional fields:** All governance fields at the bottom of the interface are entirely optional. They support professional judgement and accountability without blocking your workflow.

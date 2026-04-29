@@ -56,3 +56,12 @@ The only tool in the ecosystem that treats the curriculum as a dynamic, time-bou
 
 ## 15. Anything Unclear or Inferred from Repo Contents
 The exact growth function for Skill Levels (linear vs. log) is inferred to be a simplified qualitative model in the current simulation engine.
+
+## 16. Capability and Governance Alignment
+
+This tool is aligned with the CloudPedagogy Capability and Governance standard.
+
+- Capability: The tool supports development of practical AI capability through structured interaction and workflow use.
+- Governance: The tool includes lightweight, optional fields that make assumptions, risks, and decisions visible and reviewable.
+
+This alignment ensures the tool supports both effective use of AI and responsible, accountable practice.

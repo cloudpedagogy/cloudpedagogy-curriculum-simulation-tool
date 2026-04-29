@@ -55,4 +55,12 @@ export interface SimulationDataset {
   skills: Skill[];
   workload: WorkloadProfile[];
   settings?: ScenarioSettings;
+  // Lightweight capability and governance layer
+  // Optional, non-blocking, and does not alter core workflow
+  aiInvolvement?: string;
+  assumptions?: string;
+  risks?: string;
+  rationale?: string;
+  reviewNotes?: string;
+  capabilityNotes?: string;
 }

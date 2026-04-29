@@ -19,7 +19,6 @@ Provides behavioral risk signals and scenario delta reporting to the **Programme
 - Define the baseline structural alignment of outcomes and assessments.
 - Manage institutional governance workflows or individual human-AI decision records.
 
-For a full system overview, see: [SYSTEM_OVERVIEW.md](../SYSTEM_OVERVIEW.md)
 
 ## 🚀 Overview
 
@@ -66,6 +65,17 @@ The tool uses the following default thresholds for structural risk detection:
 ---
 
 For full technical and operational details, please refer to the **[Detailed Instruction Manual](./INSTRUCTIONS.md)**.
+
+---
+
+## Capability and Governance
+
+This tool supports both AI capability development and lightweight governance.
+
+- Capability is developed through structured interaction with real workflows
+- Governance is supported through optional fields that make assumptions, risks, and decisions visible
+
+All governance inputs are optional and designed to support — not constrain — professional judgement.
 
 ---
 
