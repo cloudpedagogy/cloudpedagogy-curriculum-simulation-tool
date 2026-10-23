@@ -63,8 +63,28 @@ a:hover {
 }
 
 :focus-visible {
-  outline: 2px solid rgba(0, 0, 0, 0.2);
+  outline: 2px solid #2563EB;
   outline-offset: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  top: -60px;
+  left: 1rem;
+  background: #2563EB;
+  color: #FFFFFF;
+  padding: 0.5rem 1rem;
+  z-index: 9999;
+  text-decoration: none;
+  font-weight: 600;
+  border-radius: 0 0 4px 4px;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid #FFFFFF;
+  outline-offset: -2px;
 }
 
 h1, h2, h3 {
@@ -1013,5 +1033,65 @@ h1 {
 @media (max-width: 1024px) {
   .ai-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Reduced Motion Preference (WCAG 2.2 AA) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus Region Indicator */
+[role="region"][tabindex="0"]:focus-visible {
+  outline: 2px solid #2563EB;
+  outline-offset: 1px;
+}
+
+/* Print Optimisation */
+@media print {
+  nav,
+  .controls,
+  .btn,
+  .skip-link,
+  .modal-overlay,
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    padding: 0;
+    color: #000000;
+    background: #FFFFFF;
+    font-size: 10pt;
+  }
+
+  .container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .card,
+  .view-container,
+  .comparison-dashboard {
+    border: 1px solid #CCCCCC !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+
+  table {
+    page-break-inside: auto;
+  }
+
+  tr {
+    page-break-inside: avoid;
+    page-break-after: auto;
   }
 }

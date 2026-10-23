@@ -4,6 +4,12 @@ import { calculateWeeklyWorkload, reconcileWorkload, WORKLOAD_THRESHOLDS } from 
 import { analyzeAssessments } from '../../lib/simulation/assessment';
 import { analyzeSkillProgression } from '../../lib/simulation/skills';
 import { PERSONAS } from '../../data/personas';
+import {
+  exportBriefingMarkdown,
+  exportBriefingHtml,
+  printBriefing,
+  type BriefingReportData
+} from '../../lib/reporting/briefingExport';
 
 interface ComparisonDashboardProps {
   workspace: CstWorkspace;
@@ -169,6 +175,67 @@ export const ComparisonDashboard: React.FC<ComparisonDashboardProps> = ({ worksp
     );
   };
 
+  const getBriefingData = (): BriefingReportData => {
+    const weeklyWorkload = workload1.map((w1, idx) => {
+      const w2 = workload2[idx];
+      const delta = w2.totalHours - w1.totalHours;
+      const isOverload = w2.totalHours >= WORKLOAD_THRESHOLDS.OVERLOAD;
+      const isHigh = w2.totalHours >= WORKLOAD_THRESHOLDS.HIGH;
+      let thresholdStatus = 'Standard (< 35h)';
+      if (isOverload) {
+        thresholdStatus = 'Overload (≥ 45h)';
+      } else if (isHigh) {
+        thresholdStatus = 'High Pressure (≥ 35h)';
+      }
+      return {
+        week: w1.week,
+        hours1: w1.totalHours,
+        hours2: w2.totalHours,
+        delta,
+        thresholdStatus
+      };
+    });
+
+    const activeScenarioObj = workspace.scenarios.find(s => s.id === config2.id);
+
+    return {
+      curriculumTitle: config2.dataset.name || config1.dataset.name || 'Academic Programme Curriculum',
+      generatedAt: new Date().toLocaleString('en-GB', { dateStyle: 'long', timeStyle: 'short' }),
+      config1: {
+        name: config1.name,
+        isBaseline: config1.isBaseline,
+        dataset: config1.dataset
+      },
+      config2: {
+        name: config2.name,
+        isBaseline: config2.isBaseline,
+        dataset: config2.dataset
+      },
+      persona: {
+        name: activePersona.name,
+        workloadMultiplier: activePersona.workloadMultiplier
+      },
+      metrics: comparisonStats,
+      weeklyWorkload,
+      rationaleNotes: {
+        scenarioDescription: activeScenarioObj?.description || config2.dataset.description,
+        assumptions: config2.dataset.assumptions || config1.dataset.assumptions,
+        rationale: config2.dataset.rationale || config1.dataset.rationale,
+        risks: config2.dataset.risks || config1.dataset.risks,
+        reviewNotes: config2.dataset.reviewNotes || config1.dataset.reviewNotes,
+        aiInvolvement: config2.dataset.aiInvolvement || config1.dataset.aiInvolvement
+      },
+      validationWarnings: [
+        ...(recon2.totalCredits !== 60 && recon2.totalCredits !== 120
+          ? [`Configuration B credit total is ${recon2.totalCredits} credits (standard UK HE curriculum stages are typically 60 or 120 credits).`]
+          : []),
+        ...(config2.dataset.assessments.length === 0
+          ? ['Configuration B contains zero assessment records. Assessment congestion metrics cannot be simulated.']
+          : [])
+      ]
+    };
+  };
+
   return (
     <div className="comparison-dashboard" style={{ marginTop: '3rem', background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '6px', padding: '2rem' }}>
       {/* Header & Configuration Selectors */}
@@ -218,6 +285,40 @@ export const ComparisonDashboard: React.FC<ComparisonDashboardProps> = ({ worksp
               ))}
             </select>
           </div>
+        </div>
+
+        {/* Briefing Report Export Bar */}
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center', background: '#F8FAFC', padding: '0.5rem 0.75rem', borderRadius: '6px', border: '1px solid var(--border-color)', width: '100%' }}>
+          <span style={{ fontSize: '0.8125rem', fontWeight: 600, color: 'var(--text-secondary)', marginRight: '0.5rem' }}>
+            Briefing Report:
+          </span>
+          <button
+            type="button"
+            className="btn btn-small"
+            onClick={() => exportBriefingMarkdown(getBriefingData())}
+            title="Export comparison briefing as Markdown file (.md)"
+            aria-label="Export comparison briefing as Markdown"
+          >
+            Export Markdown (.md)
+          </button>
+          <button
+            type="button"
+            className="btn btn-small"
+            onClick={() => exportBriefingHtml(getBriefingData())}
+            title="Export standalone printable HTML briefing (.html)"
+            aria-label="Export standalone printable HTML briefing"
+          >
+            Export HTML (.html)
+          </button>
+          <button
+            type="button"
+            className="btn btn-small"
+            onClick={() => printBriefing(getBriefingData())}
+            title="Open print view or save as PDF"
+            aria-label="Print comparison briefing or save as PDF"
+          >
+            Print / Save as PDF
+          </button>
         </div>
       </div>
 
@@ -469,18 +570,23 @@ export const ComparisonDashboard: React.FC<ComparisonDashboardProps> = ({ worksp
         <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.5rem' }}>
           Accessible Workload Comparison Table
         </h4>
-        <div style={{ overflowX: 'auto', border: '1px solid var(--border-color)', borderRadius: '6px' }}>
+        <div
+          tabIndex={0}
+          role="region"
+          aria-label="Weekly workload comparison table"
+          style={{ overflowX: 'auto', border: '1px solid var(--border-color)', borderRadius: '6px' }}
+        >
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.8125rem', textAlign: 'left' }}>
             <caption style={{ textAlign: 'left', padding: '0.5rem 1rem', fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
               Weekly workload comparison across the 12-week teaching period.
             </caption>
             <thead>
               <tr style={{ background: '#F9FAFB', borderBottom: '1px solid var(--border-color)' }}>
-                <th style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>Week</th>
-                <th style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>Config A: {config1.name}</th>
-                <th style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>Config B: {config2.name}</th>
-                <th style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>Difference (B - A)</th>
-                <th style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>Threshold Status</th>
+                <th scope="col" style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>Week</th>
+                <th scope="col" style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>Config A: {config1.name}</th>
+                <th scope="col" style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>Config B: {config2.name}</th>
+                <th scope="col" style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>Difference (B - A)</th>
+                <th scope="col" style={{ padding: '0.6rem 0.75rem', fontWeight: 600 }}>Threshold Status</th>
               </tr>
             </thead>
             <tbody>
@@ -505,7 +611,7 @@ export const ComparisonDashboard: React.FC<ComparisonDashboardProps> = ({ worksp
                       background: idx % 2 === 0 ? '#FFFFFF' : '#F9FAFB'
                     }}
                   >
-                    <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>Week {w1.week}</td>
+                    <th scope="row" style={{ padding: '0.5rem 0.75rem', fontWeight: 600, textAlign: 'left', background: 'inherit' }}>Week {w1.week}</th>
                     <td style={{ padding: '0.5rem 0.75rem' }}>{w1.totalHours.toFixed(1)}h</td>
                     <td style={{ padding: '0.5rem 0.75rem', fontWeight: 600 }}>{w2.totalHours.toFixed(1)}h</td>
                     <td style={{ padding: '0.5rem 0.75rem' }}>

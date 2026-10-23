@@ -18,6 +18,7 @@ import { CapabilityGovernanceLayer } from './features/governance/CapabilityGover
 import { OnboardingView } from './features/onboarding/OnboardingView';
 import { ScenarioManager } from './features/scenarios/ScenarioManager';
 import { AddModuleModal } from './features/curriculum/AddModuleModal';
+import { AccessibleModal } from './components/common/AccessibleModal';
 
 function App() {
   const [workspace, setWorkspace] = useState<CstWorkspace | null>(null);
@@ -309,6 +310,11 @@ function App() {
 
   return (
     <div className="container">
+      {/* Accessible Skip Link */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
+
       {/* Hidden file input for import */}
       <input
         type="file"
@@ -408,27 +414,31 @@ function App() {
           </div>
         </div>
 
-        {/* Status Toast */}
+        {/* Status Toast with Live Region */}
         {statusMessage && (
-          <div className="status-toast" style={{ marginBottom: '1.5rem' }}>
+          <div className="status-toast" role="status" aria-live="polite" style={{ marginBottom: '1.5rem' }}>
             <span className="status-icon">✓</span> {statusMessage}
           </div>
         )}
 
-        {/* Error / Corrupted Storage Alert */}
+        {/* Error / Corrupted Storage Alert with Live Region */}
         {errorMessage && (
-          <div style={{
-            padding: '1rem',
-            backgroundColor: '#FEF2F2',
-            border: '1px solid #F87171',
-            borderRadius: '6px',
-            color: '#991B1B',
-            marginBottom: '1.5rem',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            fontSize: '0.875rem'
-          }}>
+          <div
+            role="alert"
+            aria-live="assertive"
+            style={{
+              padding: '1rem',
+              backgroundColor: '#FEF2F2',
+              border: '1px solid #F87171',
+              borderRadius: '6px',
+              color: '#991B1B',
+              marginBottom: '1.5rem',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              fontSize: '0.875rem'
+            }}
+          >
             <span>⚠️ {errorMessage}</span>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               {corruptedRaw && (
@@ -462,13 +472,14 @@ function App() {
       </header>
 
       {/* Main Content Area */}
-      {!workspace ? (
-        <OnboardingView
-          onCreateEmpty={handleCreateEmpty}
-          onLoadDemo={handleLoadDemo}
-          onImportClick={() => fileInputRef.current?.click()}
-        />
-      ) : activeDataset ? (
+      <main id="main-content">
+        {!workspace ? (
+          <OnboardingView
+            onCreateEmpty={handleCreateEmpty}
+            onLoadDemo={handleLoadDemo}
+            onImportClick={() => fileInputRef.current?.click()}
+          />
+        ) : activeDataset ? (
         <>
           {/* Multi-Scenario Manager & Baseline Protection */}
           <ScenarioManager
@@ -617,86 +628,85 @@ function App() {
           )}
         </>
       ) : null}
+      </main>
 
-      {/* Exit Demo Confirmation Modal */}
-      {showExitDemoModal && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="exit-demo-title">
-          <div className="modal-content" style={{ maxWidth: '480px' }}>
-            <h2 id="exit-demo-title">Exit Demonstration Mode?</h2>
-            <p style={{ fontSize: '0.875rem', color: '#4B5563', margin: '0.75rem 0 1.25rem', lineHeight: '1.5' }}>
-              Exiting demonstration mode will discard all sample scenarios and any authored module changes.
-              To retain your changes, export your workspace as JSON before exiting.
-            </p>
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={handleExportWorkspace}
-              >
-                Export Workspace
-              </button>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={() => setShowExitDemoModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn"
-                style={{ backgroundColor: '#DC2626', color: '#FFFFFF', borderColor: '#DC2626' }}
-                onClick={() => {
-                  setShowExitDemoModal(false);
-                  handleClearEnvironment();
-                }}
-              >
-                Discard & Exit Demo
-              </button>
-            </div>
-          </div>
+      {/* Exit Demo Confirmation Accessible Modal */}
+      <AccessibleModal
+        isOpen={showExitDemoModal}
+        onClose={() => setShowExitDemoModal(false)}
+        title="Exit Demonstration Mode?"
+      >
+        <p style={{ fontSize: '0.875rem', color: '#4B5563', margin: '0.75rem 0 1.25rem', lineHeight: '1.5' }}>
+          Exiting demonstration mode will discard all sample scenarios and any authored module changes.
+          To retain your changes, export your workspace as JSON before exiting.
+        </p>
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={handleExportWorkspace}
+          >
+            Export Workspace
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => setShowExitDemoModal(false)}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn"
+            style={{ backgroundColor: '#DC2626', color: '#FFFFFF', borderColor: '#DC2626' }}
+            onClick={() => {
+              setShowExitDemoModal(false);
+              handleClearEnvironment();
+            }}
+          >
+            Discard &amp; Exit Demo
+          </button>
         </div>
-      )}
+      </AccessibleModal>
 
-      {/* Reset Workspace Confirmation Modal */}
-      {showResetModal && (
-        <div className="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-ws-title">
-          <div className="modal-content" style={{ maxWidth: '480px' }}>
-            <h2 id="reset-ws-title">Reset Curriculum Workspace?</h2>
-            <p style={{ fontSize: '0.875rem', color: '#4B5563', margin: '0.75rem 0 1.25rem', lineHeight: '1.5' }}>
-              This will clear all curriculum data, baseline configurations, and alternative scenarios from local storage.
-              This operation cannot be undone. To retain your data, export your workspace as JSON first.
-            </p>
-            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={handleExportWorkspace}
-              >
-                Export Workspace
-              </button>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={() => setShowResetModal(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn"
-                style={{ backgroundColor: '#DC2626', color: '#FFFFFF', borderColor: '#DC2626' }}
-                onClick={() => {
-                  setShowResetModal(false);
-                  handleClearEnvironment();
-                }}
-              >
-                Reset Workspace
-              </button>
-            </div>
-          </div>
+      {/* Reset Workspace Confirmation Accessible Modal */}
+      <AccessibleModal
+        isOpen={showResetModal}
+        onClose={() => setShowResetModal(false)}
+        title="Reset Curriculum Workspace?"
+      >
+        <p style={{ fontSize: '0.875rem', color: '#4B5563', margin: '0.75rem 0 1.25rem', lineHeight: '1.5' }}>
+          This will clear all curriculum data, baseline configurations, and alternative scenarios from local storage.
+          This operation cannot be undone. To retain your data, export your workspace as JSON first.
+        </p>
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={handleExportWorkspace}
+          >
+            Export Workspace
+          </button>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => setShowResetModal(false)}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn"
+            style={{ backgroundColor: '#DC2626', color: '#FFFFFF', borderColor: '#DC2626' }}
+            onClick={() => {
+              setShowResetModal(false);
+              handleClearEnvironment();
+            }}
+          >
+            Reset Workspace
+          </button>
         </div>
-      )}
+      </AccessibleModal>
 
       {/* Add Module Authoring Modal */}
       <AddModuleModal

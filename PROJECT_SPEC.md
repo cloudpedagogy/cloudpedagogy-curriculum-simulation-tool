@@ -30,22 +30,33 @@ The **Scenario Simulator** within Phase 1 (Curriculum Spine). It builds upon str
 3. **Direct Scenario Authoring & Modelling**: Edit weekly hours per module, redistribute hours evenly, smooth spikes, reschedule assessment weeks and weights, and add or delete modules with referential integrity.
 4. **Multi-Scenario Comparison**: Select any two configurations (Baseline vs Scenario A, Scenario A vs Scenario B) to contrast workload curves, peak pressure, overload weeks, credit distributions, and skill progression.
 5. **Scenario Lifecycle**: Duplicate, rename, reset to baseline, export as JSON, or replace baseline with explicit confirmation.
-6. **Governance Documentation**: Record optional reflections on AI involvement, structural assumptions, risks, and academic review notes.
+6. **Governance Documentation**: Record reflections on AI involvement, structural assumptions, risks, and academic review notes.
+7. **Scenario Briefing Export**: Generate publication-ready comparison briefings in Markdown (`.md`), standalone printable HTML (`.html`), or browser print / PDF.
 
-## 8. Current Implemented Features (Batches 1 & 2)
+## 8. Current Implemented Features (Batches 1, 2 & 3)
 - **Schema 1.0.0 & Defensive Isolation**: Versioned schema with runtime Zod validation and immutable baseline protection.
 - **UK Credit & Workload Reconciliation**: Adheres to 1 UK credit = 10 notional hours convention (60 credits = 600 hours). Distinguishes 500 teaching block hours from 100 independent study hours transparently.
-- **Authoritative Threshold Boundaries**: Overload ($\ge 45\text{h}$), High ($\ge 35\text{h}$), Target ($40\text{h}$), Moderate ($20\text{h}$), Spike Delta ($\ge 15\text{h}$). Consistent persona scaling (Full-time 1.0x, Part-time 0.5x, Intensive 1.2x).
+- **Authoritative Threshold Boundaries**: Overload ($\ge 45\text{h}$), High Pressure ($\ge 35\text{h}$), Target ($40\text{h}$), Moderate ($20\text{h}$), Spike Delta ($\ge 15\text{h}$). Consistent persona scaling (Full-time 1.0x, Part-time 0.5x, Intensive 1.2x).
 - **Direct Scenario Authoring**: 12-week cell-level weekly workload inputs, "Distribute Evenly", "Smooth Peak Weeks", assessment deadline/weight editing, module credit adjustments, module deletion referential integrity cascade, and reset to baseline.
 - **Assessment Congestion Analysis**: Credit-weighted programme assessment load $(W_a \times C_m)/C_{\text{total}}$, transparent multi-module congestion flags, high-stakes identification, and unassigned assessment tracking.
 - **Honest Skill Exposure Model**: Replaced pseudo-scientific "% mastery" formulas with transparent curriculum touchpoints, practice weeks, developmental staging, and documented assessment evidence.
 - **Multi-Scenario Comparison Dashboard**: Arbitrary configuration comparisons (Baseline vs Scenario, Scenario A vs Scenario B), metrics grid ($\Delta\text{h}$, peak delta, overload weeks delta, congestion delta, credit delta).
-- **Responsive SVG Pressure Curve & Accessible Table**: Dual-curve workload pressure curve with non-colour visual encodings (solid line + circles vs dashed line + diamonds) and threshold reference lines. Full accessible semantic table equivalent.
+- **Responsive SVG Pressure Curve & Accessible Table**: Dual-curve workload pressure curve with non-colour visual encodings (solid line + circles vs dashed line + diamonds) and threshold reference lines. Full accessible semantic table equivalent with scopes and focusable scroll region.
+- **Scenario Comparison Briefing Export**: Markdown (.md) and standalone printable HTML (.html) briefing export with print styles, A4 layout, executive summary table, governance rationale, and comprehensive methodology notes. Implements strict XSS sanitisation and `opener = null` print window protection.
+- **Full WCAG 2.2 AA Accessibility (Intention & Architecture)**:
+  - Skip link (`Skip to main content`).
+  - High-contrast visible focus (`outline: 2px solid #2563EB`).
+  - 9 distinct accessible modal dialogues via `AccessibleModal` with focus trapping, Escape handling, initial focus placement, and focus restoration upon closure.
+  - Complete WAI-ARIA tab pattern with roving tabindex and arrow-key/Home/End navigation in `ScenarioEditor`.
+  - Semantic navigation and toggle buttons (`aria-pressed`) in `ScenarioManager`.
+  - Accessible form labels on all 12-week numeric inputs and assessment controls.
+  - Screen-reader live regions (`role="status"`, `role="alert"`).
+  - Reduced-motion compliance and 200% zoom reflow.
 - **Rule-Based Planning Heuristics**: Deterministic, executable suggestions for assessment redistribution, workload smoothing, and unassessed competency evidence.
 - **Robust Import/Export & Storage Resilience**: Full workspace and scenario JSON import/export, collision-free renaming, referential foreign key validation, storage quota resilience, and corrupted raw download.
 
-## 9. Planned Enhancements (Batch 3)
-- **Batch 3 (Hardening)**: WCAG 2.1 AA accessibility compliance audit, performance benchmarking, responsive layout polish, and end-to-end browser acceptance.
+## 9. Performance & Scalability Benchmark
+- Large dataset performance benchmark verified: 12 modules, 50 assessments, and multi-scenario comparisons calculate deterministically and generate reports efficiently without execution-time flakiness or rendering bottlenecks.
 
 ## 10. Storage and Persistence Model
 - **Storage**: Browser `localStorage` via key `cst_workspace_v1`.
@@ -58,8 +69,8 @@ The **Scenario Simulator** within Phase 1 (Curriculum Spine). It builds upon str
 - Strictly preserves application boundaries (no general curriculum catalogue, approval ballots, or student pathway scheduling).
 
 ## 12. Quality & Acceptance Verification Status
-- 57 automated tests passing across schema, storage, simulation calculations, threshold boundaries, scenario editing, redistribution integrity, comparisons, and skill progression.
-- Zero TypeScript compiler errors (`tsc -b`), zero ESLint issues, clean production build (`vite build`).
-- Real browser end-to-end automation was not executed during this verification cycle due to local headless CDP connection limitations.
-
-- No formal accessibility certification or commercial release readiness is claimed.
+- **74 automated tests passing** across 7 test files (`npm test`).
+- Zero TypeScript compiler errors (`tsc -b`), zero ESLint issues (`npm run lint`), clean production build (`vite build`).
+- Clean whitespace and git check (`git diff --check`).
+- Documented distinction: automated tests verify behavior in JSDOM; manual real-browser verification (Safari, Chrome) and manual screen-reader testing (macOS VoiceOver, Windows NVDA) remain required for formal institutional acceptance.
+- Notice: No formal WCAG certification or commercial release readiness is claimed.

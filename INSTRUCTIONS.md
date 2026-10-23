@@ -5,14 +5,14 @@
 ### 1. Purpose of the Application
 The **Curriculum Simulation Tool (CST)** is a local-first environment for exploring the potential consequences of proposed curriculum modifications before implementing them. It models student workload distribution, assessment deadline concentration, and competency scaffolding across 12-week teaching blocks.
 
-CST operates under a clear pedagogical principle: **simulation provides structured planning insight, not automated academic judgment**. It transparently exposes its mathematical formulas, reference thresholds, and data limitations so that curriculum leaders, programme directors, and teaching teams can make informed, evidence-based decisions.
+CST operates under a clear pedagogical principle: **simulation provides structured planning insight, not automated academic judgement**. It transparently exposes its mathematical formulas, reference thresholds, and data limitations so that curriculum leaders, programme directors, and teaching teams can make informed, evidence-based decisions.
 
 ---
 
 ### 2. Role in the CloudPedagogy Ecosystem
 - **Phase:** Phase 1 — Curriculum Spine
 - **Upstream Connection:** Accepts curriculum datasets from the **Curriculum Alignment & Mapping Engine (CAME)**.
-- **Downstream Connection:** Provides scenario evaluation, workload risk signals, and configuration trade-off reports for the **Programme Governance Dashboard (PGD)** and **Curriculum Change Manager (CCM)**.
+- **Downstream Connection:** Provides scenario evaluation, workload risk signals, briefing exports, and configuration trade-off reports for the **Programme Governance Dashboard (PGD)** and **Curriculum Change Manager (CCM)**.
 - **Boundaries:** CST does not define structural learning outcomes or taxonomic mappings (CAME), maintain institutional syllabus catalogues (SMRS), manage formal committee ballots or approvals (CCM), or compute institutional quality metrics (PGD).
 
 ---
@@ -34,18 +34,18 @@ The **Baseline** represents your current reference curriculum.
 - **Switch Scenarios:** Use the active scenario tabs at the top of the workspace.
 - **Duplicate Scenarios:** Create copies to experiment with multiple branching ideas.
 - **Rename & Annotate:** Provide clear descriptive names and rationale for each scenario.
-- **Reset to Baseline:** Revert any alternative scenario back to its original baseline state at any time.
-- **Delete:** Remove unneeded alternative scenarios safely with confirmation.
+- **Reset to Baseline:** Revert any alternative scenario back to its original baseline state with accessible confirmation.
+- **Delete:** Remove unneeded alternative scenarios safely with accessible confirmation.
 - **Replace Baseline:** If an alternative scenario is approved as the new reference, use "Set as Baseline" (with an optional JSON backup export).
 
 #### Step 4: Direct Scenario Authoring & Modelling
 In any alternative scenario, open the **Scenario Testing & Modelling** panel to make meaningful curriculum adjustments:
 - **Module Management:** Add new modules with specified credit values, or adjust existing module credits with live notional learning hour recalculation.
 - **Referential Integrity on Deletion:** Deleting a module automatically cascades to remove its associated weekly workload profiles and assessment tasks, preventing orphaned records.
-- **Weekly Workload Editing:** Edit individual weekly hours directly in the 12-week grid for any module.
+- **Weekly Workload Editing:** Edit individual weekly hours directly in the 12-week grid for any module. Every input features an explicit accessible label for screen readers.
 - **Hour Redistribution Tools:**
   - *Distribute Evenly:* Reallocates the module's total teaching hours uniformly across all 12 teaching weeks ($H_{\text{total}} / 12$).
-  - *Smooth Peak Weeks:* Caps any week exceeding 14h down to 10h and redistributes surplus hours evenly across lower-load weeks.
+  - *Smooth Peak Weeks:* Caps any week exceeding 125% of module average and redistributes surplus hours evenly across lower-load weeks.
 - **Assessment Editing:**
   - Modify deadline timing across Weeks 1–12.
   - Adjust grading weights (0–100%) and evaluation types.
@@ -70,9 +70,15 @@ Navigate to the **Multi-Scenario Comparison Dashboard** to evaluate two configur
 - **Flexible Comparison Selection:** Compare Baseline vs Scenario A, Scenario A vs Scenario B, or any two scenarios in your workspace.
 - **Comparative Metrics Grid:** Instant visibility into differences in total teaching hours, peak weekly workload, weeks above overload/high thresholds, congested assessment weeks, module count, total credits, and competency touchpoints.
 - **Responsive Pressure Curve (SVG):** Visualises weekly workload trajectories with dual visual encoding (Config A: solid curve with circular nodes; Config B: dashed curve with diamond nodes) and planning threshold reference lines (Overload at 45h, High at 35h, Target at 40h).
-- **Accessible Comparison Table:** Complete tabular breakdown of weekly hours, differences ($\Delta$), and directional indicators (`↑ Increased`, `↓ Decreased`, `= Unchanged`).
+- **Accessible Comparison Table:** Complete tabular breakdown of weekly hours, differences ($\Delta$), and directional indicators (`↑ Increased`, `↓ Decreased`, `= Unchanged`). Includes column/row scopes and focusable horizontal scroll region.
 
-#### Step 7: Rule-Based Planning Suggestions
+#### Step 7: Exporting Scenario Comparison Briefings (New in Batch 3)
+Generate self-contained reports directly from the Comparison Dashboard:
+1. **Export Markdown (.md):** Creates a comprehensive briefing document with metadata, executive table, weekly profile, governance rationale, and methodology explanation.
+2. **Export HTML (.html):** Produces a standalone printable HTML file with embedded styling, print-friendly A4 layout, and strict XSS sanitisation.
+3. **Print / Save as PDF:** Triggers print preview formatted for paper or PDF export.
+
+#### Step 8: Rule-Based Planning Suggestions
 Review deterministic, rule-based scenario recommendations in the **Planning Suggestions** panel:
 - Clearly labelled as deterministic planning rules (never misleadingly presented as "AI" or generative models).
 - *Stagger Clustered Assessments:* Suggests shifting deadlines from congested weeks to adjacent lower-load weeks.
@@ -80,7 +86,7 @@ Review deterministic, rule-based scenario recommendations in the **Planning Sugg
 - *Link Assessment Evidence:* Suggests establishing formal assessment evidence for skills with high instructional exposure but unassessed status.
 - Each suggestion displays an educator-friendly pedagogical rationale and applies a verified, valid state mutation upon acceptance.
 
-#### Step 8: Competency Scaffolding & Honest Skill Exposure
+#### Step 9: Competency Scaffolding & Honest Skill Exposure
 Inspect curriculum skill progression in the **Competency Scaffolding** view:
 - **No Speculative Mastery Percentages:** CST explicitly avoids claiming that students have "mastered" a percentage of a skill based on curriculum presence alone.
 - **Transparent Exposure Indicators:**
@@ -89,10 +95,20 @@ Inspect curriculum skill progression in the **Competency Scaffolding** view:
   - *Developmental Staging:* Tracks learning depth across 'introductory', 'reinforcement', and 'practice/application' stages.
   - *Assessment Evidence:* Distinguishes skills with documented assessment evidence from those with teaching exposure only.
 
-#### Step 9: Exporting & Preserving Records
+#### Step 10: Exporting & Preserving Records
 - Click **"Export Workspace"** to download the complete multi-scenario workspace as a versioned JSON file (`Schema 1.0.0`).
 - Individual scenarios can also be exported separately from the scenario action bar.
-- If storage write or quota issues occur, CST displays an immediate non-destructive warning, retaining your active workspace in memory so you can export your work safely.
+- If storage write or quota issues occur, CST displays an immediate non-destructive warning (`role="alert"`), retaining your active workspace in memory so you can export your work safely.
+
+---
+
+#### Step 11: Keyboard Navigation & Accessibility (WCAG 2.2 AA Alignment Intention)
+- **Skip Link:** Press `Tab` upon initial page load to access "Skip to main content" and jump directly to the workspace.
+- **Focus Indicators:** All active controls display a high-contrast 2px solid blue outline (`outline: 2px solid #2563EB`).
+- **Complete ARIA Tab Navigation:** In the Scenario Editor, navigate between "Weekly Workload Hours", "Assessment Deadlines", and "Modules & Credits" using `ArrowRight`, `ArrowLeft`, `Home`, and `End`. Each panel container is focusable (`tabIndex={0}`) for seamless keyboard transition into form fields.
+- **Accessible Modal Dialogues:** All 9 dialogues across the application (module creation, scenario creation, scenario deletion, baseline replacement, module deletion, scenario reset, demo exit, and workspace reset) manage focus trapping, Escape-key dismissal, background scroll locking, non-destructive initial focus, and focus restoration to the opener.
+- **Screen Reader Announcements:** All error notices and status messages announce automatically via live regions (`role="status"`, `role="alert"`).
+- **Verification Notice:** 74 automated unit tests verify accessibility logic in JSDOM. Formal institutional deployment requires hands-on cross-browser verification (Safari, Chrome) and manual screen-reader testing (macOS VoiceOver, Windows NVDA). Conformance is targeted, but formal certification requires external audit.
 
 ---
 

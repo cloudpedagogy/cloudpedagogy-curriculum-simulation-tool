@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { CstWorkspace, Scenario } from '../../types';
+import { AccessibleModal } from '../../components/common/AccessibleModal';
 
 interface ScenarioManagerProps {
   workspace: CstWorkspace;
@@ -78,16 +79,17 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
       marginBottom: '2rem',
       boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
     }}>
-      {/* Top row: Scenario Tabs & Status */}
+      {/* Top row: Scenario Views & Status */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1rem' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <nav aria-label="Curriculum scenario views" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#6B7280', textTransform: 'uppercase', marginRight: '0.5rem' }}>
             Active View:
           </span>
 
-          {/* Baseline Tab */}
+          {/* Baseline Switch Button */}
           <button
             type="button"
+            aria-pressed={isBaselineActive}
             onClick={() => onSelectScenario(null)}
             className="btn"
             style={{
@@ -103,13 +105,14 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
             📋 Protected Baseline
           </button>
 
-          {/* Scenarios Tabs */}
+          {/* Scenario Switch Buttons */}
           {workspace.scenarios.map(s => {
             const isActive = s.id === workspace.activeScenarioId;
             return (
               <button
                 key={s.id}
                 type="button"
+                aria-pressed={isActive}
                 onClick={() => onSelectScenario(s.id)}
                 className="btn"
                 style={{
@@ -131,6 +134,7 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
             type="button"
             onClick={handleStartCreate}
             className="btn btn-ghost"
+            aria-label="Create new scenario branched from baseline"
             style={{
               padding: '0.375rem 0.625rem',
               fontSize: '0.8125rem',
@@ -141,7 +145,8 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
           >
             + New Scenario
           </button>
-        </div>
+        </nav>
+
 
         {/* Mode Badge & Action Bar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -284,153 +289,158 @@ export const ScenarioManager: React.FC<ScenarioManagerProps> = ({
       </div>
 
       {/* Modal: Create Scenario */}
-      {isCreating && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100
-        }}>
-          <div style={{ backgroundColor: '#FFFFFF', padding: '1.5rem', borderRadius: '8px', maxWidth: '420px', width: '100%' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem' }}>Create Alternative Scenario</h3>
-            <p style={{ fontSize: '0.8125rem', color: '#6B7280', marginBottom: '1rem' }}>
-              Create an editable scenario branched from the protected baseline.
-            </p>
-            <form onSubmit={handleConfirmCreate}>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>Scenario Name</label>
-                <input
-                  type="text"
-                  value={newScenarioName}
-                  onChange={e => setNewScenarioName(e.target.value)}
-                  required
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #D1D5DB', borderRadius: '4px' }}
-                />
-              </div>
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>Description (Optional)</label>
-                <input
-                  type="text"
-                  value={newScenarioDesc}
-                  onChange={e => setNewScenarioDesc(e.target.value)}
-                  placeholder="e.g. Staggering Week 11 presentations to Week 9"
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #D1D5DB', borderRadius: '4px' }}
-                />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                <button type="button" className="btn btn-ghost" onClick={() => setIsCreating(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Create Scenario</button>
-              </div>
-            </form>
+      <AccessibleModal
+        isOpen={isCreating}
+        onClose={() => setIsCreating(false)}
+        title="Create Alternative Scenario"
+        titleId="create-scenario-title"
+        maxWidth="440px"
+      >
+        <p style={{ fontSize: '0.8125rem', color: '#6B7280', marginBottom: '1rem' }}>
+          Create an editable scenario branched from the protected baseline.
+        </p>
+        <form onSubmit={handleConfirmCreate}>
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label htmlFor="create-scenario-name" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+              Scenario Name
+            </label>
+            <input
+              id="create-scenario-name"
+              type="text"
+              value={newScenarioName}
+              onChange={e => setNewScenarioName(e.target.value)}
+              required
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #D1D5DB', borderRadius: '4px' }}
+            />
           </div>
-        </div>
-      )}
+          <div style={{ marginBottom: '1.25rem' }}>
+            <label htmlFor="create-scenario-desc" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+              Description (Optional)
+            </label>
+            <input
+              id="create-scenario-desc"
+              type="text"
+              value={newScenarioDesc}
+              onChange={e => setNewScenarioDesc(e.target.value)}
+              placeholder="e.g. Staggering Week 11 presentations to Week 9"
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #D1D5DB', borderRadius: '4px' }}
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+            <button type="button" className="btn btn-ghost" onClick={() => setIsCreating(false)}>Cancel</button>
+            <button type="submit" className="btn btn-primary">Create Scenario</button>
+          </div>
+        </form>
+      </AccessibleModal>
 
       {/* Modal: Rename Scenario */}
-      {isRenaming && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100
-        }}>
-          <div style={{ backgroundColor: '#FFFFFF', padding: '1.5rem', borderRadius: '8px', maxWidth: '420px', width: '100%' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem' }}>Rename Scenario</h3>
-            <form onSubmit={handleConfirmRename}>
-              <div style={{ marginBottom: '0.75rem' }}>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>Scenario Name</label>
-                <input
-                  type="text"
-                  value={renameText}
-                  onChange={e => setRenameText(e.target.value)}
-                  required
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #D1D5DB', borderRadius: '4px' }}
-                />
-              </div>
-              <div style={{ marginBottom: '1.25rem' }}>
-                <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>Description</label>
-                <input
-                  type="text"
-                  value={renameDesc}
-                  onChange={e => setRenameDesc(e.target.value)}
-                  style={{ width: '100%', padding: '0.5rem', border: '1px solid #D1D5DB', borderRadius: '4px' }}
-                />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-                <button type="button" className="btn btn-ghost" onClick={() => setIsRenaming(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Save</button>
-              </div>
-            </form>
+      <AccessibleModal
+        isOpen={isRenaming}
+        onClose={() => setIsRenaming(false)}
+        title="Rename Scenario"
+        titleId="rename-scenario-title"
+        maxWidth="440px"
+      >
+        <form onSubmit={handleConfirmRename}>
+          <div style={{ marginBottom: '0.75rem' }}>
+            <label htmlFor="rename-scenario-name" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+              Scenario Name
+            </label>
+            <input
+              id="rename-scenario-name"
+              type="text"
+              value={renameText}
+              onChange={e => setRenameText(e.target.value)}
+              required
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #D1D5DB', borderRadius: '4px' }}
+            />
           </div>
-        </div>
-      )}
+          <div style={{ marginBottom: '1.25rem' }}>
+            <label htmlFor="rename-scenario-desc" style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.25rem' }}>
+              Description
+            </label>
+            <input
+              id="rename-scenario-desc"
+              type="text"
+              value={renameDesc}
+              onChange={e => setRenameDesc(e.target.value)}
+              style={{ width: '100%', padding: '0.5rem', border: '1px solid #D1D5DB', borderRadius: '4px' }}
+            />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+            <button type="button" className="btn btn-ghost" onClick={() => setIsRenaming(false)}>Cancel</button>
+            <button type="submit" className="btn btn-primary">Save</button>
+          </div>
+        </form>
+      </AccessibleModal>
 
       {/* Modal: Confirm Delete */}
-      {confirmDeleteId && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100
-        }}>
-          <div style={{ backgroundColor: '#FFFFFF', padding: '1.5rem', borderRadius: '8px', maxWidth: '400px', width: '100%' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', color: '#DC2626' }}>Delete Scenario</h3>
-            <p style={{ fontSize: '0.875rem', color: '#4B5563', marginBottom: '1.25rem' }}>
-              Are you sure you want to delete this scenario? This action cannot be undone.
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-              <button type="button" className="btn btn-ghost" onClick={() => setConfirmDeleteId(null)}>Cancel</button>
-              <button
-                type="button"
-                className="btn"
-                style={{ backgroundColor: '#DC2626', color: '#FFFFFF' }}
-                onClick={() => {
-                  onDeleteScenario(confirmDeleteId);
-                  setConfirmDeleteId(null);
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
+      <AccessibleModal
+        isOpen={Boolean(confirmDeleteId)}
+        onClose={() => setConfirmDeleteId(null)}
+        title="Delete Scenario"
+        titleId="delete-scenario-title"
+        maxWidth="400px"
+      >
+        <p style={{ fontSize: '0.875rem', color: '#4B5563', marginBottom: '1.25rem' }}>
+          Are you sure you want to delete this scenario? This action cannot be undone.
+        </p>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
+          <button type="button" className="btn btn-ghost" onClick={() => setConfirmDeleteId(null)}>Cancel</button>
+          <button
+            type="button"
+            className="btn"
+            style={{ backgroundColor: '#DC2626', color: '#FFFFFF', borderColor: '#DC2626' }}
+            onClick={() => {
+              if (confirmDeleteId) onDeleteScenario(confirmDeleteId);
+              setConfirmDeleteId(null);
+            }}
+          >
+            Delete
+          </button>
         </div>
-      )}
+      </AccessibleModal>
 
       {/* Modal: Confirm Replace Baseline */}
-      {confirmReplaceBaseline && activeScenario && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1100
-        }}>
-          <div style={{ backgroundColor: '#FFFFFF', padding: '1.5rem', borderRadius: '8px', maxWidth: '440px', width: '100%' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', color: '#B45309' }}>
-              Replace Protected Baseline?
-            </h3>
-            <p style={{ fontSize: '0.875rem', color: '#4B5563', marginBottom: '1rem', lineHeight: 1.4 }}>
-              This will overwrite the protected baseline curriculum with <strong>"{activeScenario.name}"</strong>.
-              All future scenarios branched from baseline will use these modified parameters.
-            </p>
-            <div style={{ padding: '0.75rem', backgroundColor: '#FEF3C7', borderRadius: '6px', fontSize: '0.8125rem', color: '#92400E', marginBottom: '1.25rem' }}>
-              <strong>Recommended:</strong> Export a JSON backup of your current workspace before replacing the baseline.
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem' }}>
-              <button type="button" className="btn btn-ghost" onClick={() => setConfirmReplaceBaseline(false)}>Cancel</button>
-              <button
-                type="button"
-                className="btn btn-ghost"
-                onClick={onExportBaseline}
-              >
-                Export Backup First
-              </button>
-              <button
-                type="button"
-                className="btn"
-                style={{ backgroundColor: '#B45309', color: '#FFFFFF' }}
-                onClick={() => {
-                  onReplaceBaseline();
-                  setConfirmReplaceBaseline(false);
-                }}
-              >
-                Confirm Replace
-              </button>
-            </div>
+      {activeScenario && (
+        <AccessibleModal
+          isOpen={confirmReplaceBaseline}
+          onClose={() => setConfirmReplaceBaseline(false)}
+          title="Replace Protected Baseline?"
+          titleId="replace-baseline-title"
+          maxWidth="460px"
+        >
+          <p style={{ fontSize: '0.875rem', color: '#4B5563', marginBottom: '1rem', lineHeight: 1.4 }}>
+            This will overwrite the protected baseline curriculum with <strong>"{activeScenario.name}"</strong>.
+            All future scenarios branched from baseline will use these modified parameters.
+          </p>
+          <div style={{ padding: '0.75rem', backgroundColor: '#FEF3C7', borderRadius: '6px', fontSize: '0.8125rem', color: '#92400E', marginBottom: '1.25rem' }}>
+            <strong>Recommended:</strong> Export a JSON backup of your current workspace before replacing the baseline.
           </div>
-        </div>
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button type="button" className="btn btn-ghost" onClick={() => setConfirmReplaceBaseline(false)}>Cancel</button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              onClick={onExportBaseline}
+            >
+              Export Backup First
+            </button>
+            <button
+              type="button"
+              className="btn"
+              style={{ backgroundColor: '#B45309', color: '#FFFFFF', borderColor: '#B45309' }}
+              onClick={() => {
+                onReplaceBaseline();
+                setConfirmReplaceBaseline(false);
+              }}
+            >
+              Confirm Replace
+            </button>
+          </div>
+        </AccessibleModal>
       )}
+
     </div>
   );
 };

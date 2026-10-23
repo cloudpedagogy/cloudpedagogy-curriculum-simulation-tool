@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import type { SimulationDataset, Module, Assessment } from '../../types';
 import { distributeHoursEvenly, smoothWeeklyHours } from '../../lib/simulation/workload';
+import { AccessibleModal } from '../../components/common/AccessibleModal';
 
 interface ScenarioEditorProps {
   dataset: SimulationDataset;
@@ -19,12 +20,41 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
   const [selectedModuleId, setSelectedModuleId] = useState<string>(
     dataset.modules[0]?.id || ''
   );
+  const tabRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
+
+  const handleTabKeyDown = (e: React.KeyboardEvent, currentId: 'workload' | 'assessments' | 'modules') => {
+    const tabIds: Array<'workload' | 'assessments' | 'modules'> = ['workload', 'assessments', 'modules'];
+    const currentIndex = tabIds.indexOf(currentId);
+    let nextIndex = -1;
+
+    if (e.key === 'ArrowRight') {
+      nextIndex = (currentIndex + 1) % tabIds.length;
+    } else if (e.key === 'ArrowLeft') {
+      nextIndex = (currentIndex - 1 + tabIds.length) % tabIds.length;
+    } else if (e.key === 'Home') {
+      nextIndex = 0;
+    } else if (e.key === 'End') {
+      nextIndex = tabIds.length - 1;
+    }
+
+    if (nextIndex !== -1) {
+      e.preventDefault();
+      const nextTabId = tabIds[nextIndex];
+      setActiveTab(nextTabId);
+      tabRefs.current[nextTabId]?.focus();
+    }
+  };
 
   // New module form state
   const [showAddModule, setShowAddModule] = useState(false);
   const [newModCode, setNewModCode] = useState('');
   const [newModTitle, setNewModTitle] = useState('');
   const [newModCredits, setNewModCredits] = useState(15);
+  const [moduleValidationError, setModuleValidationError] = useState<string | null>(null);
+
+  // Accessible confirmation dialog states (replaces window.confirm)
+  const [moduleToDelete, setModuleToDelete] = useState<Module | null>(null);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
   // Fallback if selectedModuleId was removed
   const activeModule = dataset.modules.find(m => m.id === selectedModuleId) || dataset.modules[0];
@@ -125,10 +155,12 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
   const handleDeleteModule = (moduleId: string) => {
     const modToDelete = dataset.modules.find(m => m.id === moduleId);
     if (!modToDelete) return;
+    setModuleToDelete(modToDelete);
+  };
 
-    if (!window.confirm(`Are you sure you want to remove ${modToDelete.code} (${modToDelete.title})? This will also remove its associated workload profile and assessments to preserve referential integrity.`)) {
-      return;
-    }
+  const confirmDeleteModule = () => {
+    if (!moduleToDelete) return;
+    const moduleId = moduleToDelete.id;
 
     // Referential integrity cascade:
     // 1. Remove module
@@ -148,15 +180,17 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
       workload: updatedWorkload,
       assessments: updatedAssessments
     });
+    setModuleToDelete(null);
   };
 
   const handleCreateModule = (e: React.FormEvent) => {
     e.preventDefault();
+    setModuleValidationError(null);
     if (!newModCode.trim() || !newModTitle.trim()) return;
 
     const modId = `mod-${newModCode.trim().toLowerCase().replace(/[^a-z0-9]/g, '-')}`;
     if (dataset.modules.some(m => m.id === modId || m.code.toLowerCase() === newModCode.trim().toLowerCase())) {
-      alert(`A module with code "${newModCode}" already exists.`);
+      setModuleValidationError(`A module with code "${newModCode}" already exists.`);
       return;
     }
 
@@ -209,7 +243,12 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
 
   const handleResetWithConfirm = () => {
     if (!onReset) return;
-    if (window.confirm('Reset this scenario back to the protected baseline state? All scenario modifications will be discarded.')) {
+    setShowResetConfirm(true);
+  };
+
+  const confirmResetScenario = () => {
+    setShowResetConfirm(false);
+    if (onReset) {
       onReset();
     }
   };
@@ -237,24 +276,49 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
       )}
 
       {/* Editor Tab Navigation */}
-      <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1.5rem', paddingBottom: '0.5rem' }}>
+      <div
+        role="tablist"
+        aria-label="Scenario Editor navigation"
+        style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', marginBottom: '1.5rem', paddingBottom: '0.5rem' }}
+      >
         <button
+          ref={el => { tabRefs.current['workload'] = el; }}
+          role="tab"
+          id="tab-workload"
+          aria-selected={activeTab === 'workload'}
+          aria-controls="panel-workload"
+          tabIndex={activeTab === 'workload' ? 0 : -1}
           className={`btn ${activeTab === 'workload' ? 'btn-primary' : 'btn-ghost'}`}
           onClick={() => setActiveTab('workload')}
+          onKeyDown={e => handleTabKeyDown(e, 'workload')}
           style={{ fontSize: '0.8125rem' }}
         >
           ⏱️ Weekly Workload Hours
         </button>
         <button
+          ref={el => { tabRefs.current['assessments'] = el; }}
+          role="tab"
+          id="tab-assessments"
+          aria-selected={activeTab === 'assessments'}
+          aria-controls="panel-assessments"
+          tabIndex={activeTab === 'assessments' ? 0 : -1}
           className={`btn ${activeTab === 'assessments' ? 'btn-primary' : 'btn-ghost'}`}
           onClick={() => setActiveTab('assessments')}
+          onKeyDown={e => handleTabKeyDown(e, 'assessments')}
           style={{ fontSize: '0.8125rem' }}
         >
           📋 Assessment Deadlines & Weights
         </button>
         <button
+          ref={el => { tabRefs.current['modules'] = el; }}
+          role="tab"
+          id="tab-modules"
+          aria-selected={activeTab === 'modules'}
+          aria-controls="panel-modules"
+          tabIndex={activeTab === 'modules' ? 0 : -1}
           className={`btn ${activeTab === 'modules' ? 'btn-primary' : 'btn-ghost'}`}
           onClick={() => setActiveTab('modules')}
+          onKeyDown={e => handleTabKeyDown(e, 'modules')}
           style={{ fontSize: '0.8125rem' }}
         >
           📦 Modules & Credits ({dataset.modules.length})
@@ -263,11 +327,12 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
 
       {/* TAB 1: WEEKLY WORKLOAD */}
       {activeTab === 'workload' && (
-        <div>
+        <div role="tabpanel" id="panel-workload" aria-labelledby="tab-workload" tabIndex={0} style={{ outline: 'none' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <label style={{ fontWeight: 600, fontSize: '0.875rem' }}>Select Module to Edit:</label>
+              <label htmlFor="select-module-workload" style={{ fontWeight: 600, fontSize: '0.875rem' }}>Select Module to Edit:</label>
               <select
+                id="select-module-workload"
                 value={selectedModuleId}
                 onChange={(e) => setSelectedModuleId(e.target.value)}
                 style={{ padding: '0.4rem 0.75rem', borderRadius: '4px', border: '1px solid var(--border-color)', fontSize: '0.875rem' }}
@@ -358,6 +423,7 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
                       max={60}
                       step={1}
                       value={hours}
+                      aria-label={`Week ${idx + 1} study hours for ${activeModule.code}`}
                       onChange={(e) => handleWeeklyHourChange(idx, parseInt(e.target.value, 10))}
                       style={{
                         width: '100%',
@@ -380,11 +446,12 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
 
       {/* TAB 2: ASSESSMENTS */}
       {activeTab === 'assessments' && (
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <div role="tabpanel" id="panel-assessments" aria-labelledby="tab-assessments" tabIndex={0} style={{ outline: 'none' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Assessment Deadlines & Weighting</h3>
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <select
+                aria-label="Filter assessments by module"
                 value={selectedModuleId}
                 onChange={(e) => setSelectedModuleId(e.target.value)}
                 style={{ padding: '0.35rem 0.6rem', borderRadius: '4px', border: '1px solid var(--border-color)', fontSize: '0.8125rem' }}
@@ -460,6 +527,7 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
                           <div>
                             <label style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', display: 'block' }}>Type</label>
                             <select
+                              aria-label={`Assessment type for ${asmt.name}`}
                               value={asmt.type}
                               onChange={(e) => handleUpdateAssessmentType(asmt.id, e.target.value)}
                               style={{ padding: '0.2rem 0.4rem', borderRadius: '4px', border: '1px solid var(--border-color)', width: '100%' }}
@@ -473,6 +541,7 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
                           <div>
                             <label style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', display: 'block' }}>Deadline Week</label>
                             <select
+                              aria-label={`Deadline week for ${asmt.name}`}
                               value={asmt.week}
                               onChange={(e) => handleUpdateAssessmentWeek(asmt.id, parseInt(e.target.value, 10))}
                               style={{ padding: '0.2rem 0.4rem', borderRadius: '4px', border: '1px solid var(--border-color)', width: '100%', fontWeight: 600 }}
@@ -489,15 +558,18 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
                               min={0}
                               max={100}
                               value={asmt.weight}
+                              aria-label={`Weight percentage for ${asmt.name}`}
                               onChange={(e) => handleUpdateAssessmentWeight(asmt.id, parseInt(e.target.value, 10))}
                               style={{ padding: '0.2rem 0.4rem', borderRadius: '4px', border: '1px solid var(--border-color)', width: '100%', fontWeight: 600 }}
                             />
                           </div>
                           <div>
                             <button
+                              type="button"
                               onClick={() => handleDeleteAssessment(asmt.id)}
                               style={{ background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer', fontSize: '1rem', padding: '0.25rem' }}
                               title="Delete Assessment"
+                              aria-label={`Delete assessment ${asmt.name}`}
                             >
                               🗑️
                             </button>
@@ -515,8 +587,8 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
 
       {/* TAB 3: MODULES & CREDITS */}
       {activeTab === 'modules' && (
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+        <div role="tabpanel" id="panel-modules" aria-labelledby="tab-modules" tabIndex={0} style={{ outline: 'none' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '0.5rem' }}>
             <div>
               <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Programme Modules & Credit Value</h3>
               <p style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)', margin: 0 }}>
@@ -524,13 +596,35 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
               </p>
             </div>
             <button
+              type="button"
               className="btn btn-primary"
-              onClick={() => setShowAddModule(!showAddModule)}
+              onClick={() => {
+                setShowAddModule(!showAddModule);
+                setModuleValidationError(null);
+              }}
               style={{ fontSize: '0.8125rem' }}
             >
               {showAddModule ? 'Cancel' : '+ Add Module to Scenario'}
             </button>
           </div>
+
+          {/* Inline Validation Error */}
+          {moduleValidationError && (
+            <div
+              role="alert"
+              style={{
+                padding: '0.75rem 1rem',
+                backgroundColor: '#FEF2F2',
+                border: '1px solid #F87171',
+                borderRadius: '6px',
+                color: '#991B1B',
+                marginBottom: '1rem',
+                fontSize: '0.875rem'
+              }}
+            >
+              ⚠️ {moduleValidationError}
+            </div>
+          )}
 
           {/* Add Module Inline Form */}
           {showAddModule && (
@@ -547,8 +641,9 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
               <h4 style={{ fontSize: '0.875rem', fontWeight: 600, marginBottom: '0.75rem' }}>Add New Module</h4>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr auto', gap: '0.75rem', alignItems: 'flex-end' }}>
                 <div>
-                  <label style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}>Module Code</label>
+                  <label htmlFor="inline-mod-code" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}>Module Code</label>
                   <input
+                    id="inline-mod-code"
                     type="text"
                     required
                     placeholder="e.g. PH203"
@@ -558,8 +653,9 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}>Module Title</label>
+                  <label htmlFor="inline-mod-title" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}>Module Title</label>
                   <input
+                    id="inline-mod-title"
                     type="text"
                     required
                     placeholder="e.g. Health Economics & Policy"
@@ -569,8 +665,9 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}>UK Credits</label>
+                  <label htmlFor="inline-mod-credits" style={{ fontSize: '0.75rem', display: 'block', marginBottom: '0.25rem', fontWeight: 500 }}>UK Credits</label>
                   <input
+                    id="inline-mod-credits"
                     type="number"
                     min={5}
                     max={120}
@@ -627,22 +724,26 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
 
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <label style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>Credits:</label>
+                      <label htmlFor={`credits-${module.id}`} style={{ fontSize: '0.8125rem', color: 'var(--text-secondary)' }}>Credits:</label>
                       <input
+                        id={`credits-${module.id}`}
                         type="number"
                         min={5}
                         max={120}
                         step={5}
                         value={module.credits}
+                        aria-label={`Credit value for ${module.code}`}
                         onChange={(e) => handleUpdateCredits(module.id, parseInt(e.target.value, 10))}
                         style={{ width: '60px', padding: '0.3rem', border: '1px solid var(--border-color)', borderRadius: '4px', fontWeight: 600, textAlign: 'center' }}
                       />
                     </div>
                     <button
+                      type="button"
                       className="btn btn-danger"
                       onClick={() => handleDeleteModule(module.id)}
                       style={{ fontSize: '0.8125rem', padding: '0.3rem 0.6rem' }}
                       title="Remove module and maintain referential integrity"
+                      aria-label={`Delete module ${module.code} (${module.title})`}
                     >
                       Delete Module
                     </button>
@@ -653,6 +754,64 @@ export const ScenarioEditor: React.FC<ScenarioEditorProps> = ({
           </div>
         </div>
       )}
+
+      {/* Delete Module Accessible Confirmation Modal */}
+      <AccessibleModal
+        isOpen={Boolean(moduleToDelete)}
+        onClose={() => setModuleToDelete(null)}
+        title="Delete Curriculum Module?"
+      >
+        <p style={{ fontSize: '0.875rem', color: '#4B5563', margin: '0.5rem 0 1.25rem', lineHeight: '1.5' }}>
+          Are you sure you want to remove <strong>{moduleToDelete?.code} ({moduleToDelete?.title})</strong>?
+          This will also remove its associated workload profile and assessments to preserve referential integrity.
+        </p>
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => setModuleToDelete(null)}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn"
+            style={{ backgroundColor: '#DC2626', color: '#FFFFFF', borderColor: '#DC2626' }}
+            onClick={confirmDeleteModule}
+          >
+            Delete Module &amp; Linked Data
+          </button>
+        </div>
+      </AccessibleModal>
+
+      {/* Reset Scenario Accessible Confirmation Modal */}
+      <AccessibleModal
+        isOpen={showResetConfirm}
+        onClose={() => setShowResetConfirm(false)}
+        title="Reset Scenario to Protected Baseline?"
+      >
+        <p style={{ fontSize: '0.875rem', color: '#4B5563', margin: '0.5rem 0 1.25rem', lineHeight: '1.5' }}>
+          This will revert all workload hours, assessment deadlines, and module modifications in this scenario back to the current protected baseline state.
+          This operation cannot be undone.
+        </p>
+        <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => setShowResetConfirm(false)}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="btn"
+            style={{ backgroundColor: '#DC2626', color: '#FFFFFF', borderColor: '#DC2626' }}
+            onClick={confirmResetScenario}
+          >
+            Reset to Baseline
+          </button>
+        </div>
+      </AccessibleModal>
     </div>
   );
 };
