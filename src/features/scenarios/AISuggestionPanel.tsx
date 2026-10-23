@@ -8,7 +8,17 @@ interface AISuggestionPanelProps {
 
 export const AISuggestionPanel: React.FC< AISuggestionPanelProps> = ({ dataset, onApplySuggestion }) => {
   const suggestions = useMemo(() => {
-    const list: { id: string; title: string; description: string; type: 'sequencing' | 'assessment' | 'skill'; actionText: string; impact: string; updatedDataset: SimulationDataset }[] = [];
+    const list: {
+      id: string;
+      title: string;
+      description: string;
+      type: 'sequencing' | 'assessment' | 'skill';
+      actionText: string;
+      impact: string;
+      updatedDataset: SimulationDataset;
+      disabled?: boolean;
+      disabledReason?: string;
+    }[] = [];
 
     // 1. Suggest Assessment Redistribution
     const clusterWeeks = [];
@@ -40,7 +50,7 @@ export const AISuggestionPanel: React.FC< AISuggestionPanelProps> = ({ dataset, 
     // 2. Suggest Skill Reinforcement
     const skillCounts: Record<string, number> = {};
     dataset.modules.forEach(m => m.skillsGained.forEach(s => skillCounts[s] = (skillCounts[s] || 0) + 1));
-    const underReinforced = Object.entries(skillCounts).find(([_, count]) => count === 1);
+    const underReinforced = Object.entries(skillCounts).find(([, count]) => count === 1);
     
     if (underReinforced) {
       const [skillId] = underReinforced;
@@ -63,7 +73,7 @@ export const AISuggestionPanel: React.FC< AISuggestionPanelProps> = ({ dataset, 
       }
     }
 
-    // 3. Suggest Sequencing Idea
+    // 3. Suggest Sequencing Idea (Marked as planned for Batch 2)
     const coreModule = dataset.modules[0];
     if (coreModule) {
       list.push({
@@ -72,8 +82,10 @@ export const AISuggestionPanel: React.FC< AISuggestionPanelProps> = ({ dataset, 
         description: `Consider starting "${coreModule.code}" one week earlier to better support foundational skill acquisition.`,
         type: 'sequencing',
         actionText: 'Adjust Sequence',
-        impact: 'Smoothes progression curve',
-        updatedDataset: dataset // Simulating a sequence change would require week-shifting workload which is complex for a mock
+        impact: 'Smoothes progression curve (Multi-week timeline shift in development)',
+        updatedDataset: dataset,
+        disabled: true,
+        disabledReason: 'Workload sequencing shifts require multi-week hour redistribution (scheduled for Batch 2).'
       });
     }
 
@@ -102,9 +114,20 @@ export const AISuggestionPanel: React.FC< AISuggestionPanelProps> = ({ dataset, 
                 <strong>Modelled Impact:</strong> {s.impact}
               </div>
             </div>
-            <button className="btn-ai" onClick={() => onApplySuggestion(s.updatedDataset)}>
-              Review & Integrate
-            </button>
+            {s.disabled ? (
+              <button
+                className="btn-ai"
+                disabled
+                title={s.disabledReason}
+                style={{ opacity: 0.5, cursor: 'not-allowed', backgroundColor: '#9CA3AF' }}
+              >
+                Planned (Batch 2)
+              </button>
+            ) : (
+              <button className="btn-ai" onClick={() => onApplySuggestion(s.updatedDataset)}>
+                Review & Integrate
+              </button>
+            )}
           </div>
         ))}
       </div>

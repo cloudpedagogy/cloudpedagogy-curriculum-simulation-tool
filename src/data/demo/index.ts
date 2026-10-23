@@ -1,162 +1,164 @@
 import type { SimulationDataset } from '../../types';
 
+/**
+ * Calibrated Illustrative Demonstration Dataset:
+ * Master of Public Health (MPH) — Term 1 Core Curriculum
+ *
+ * Structure & Credit Model:
+ * - 4 concurrent modules across a 12-week teaching block (60 UK credits total, 15 credits each).
+ * - Credit equivalence: 1 UK credit = 10 notional learning hours (150 hours per module, 600 hours total).
+ * - Delivery distribution: 500 hours occur during the 12 active teaching weeks
+ *   (120–130 hours per module, averaging ~41.7 hours/week full-time student workload across all 4 modules),
+ *   with the remaining 100 hours (25 hours per module on average) allocated for pre-term preparation,
+ *   reading consolidation, and post-term examination revision / feedback reflection.
+ * - Assessment deadlines are realistically distributed, with intentional clustering in Weeks 11 & 12
+ *   to demonstrate workload spike detection and scenario smoothing.
+ *
+ * NOTE: This dataset is synthetic and illustrative.
+ */
 export const demoDataset: SimulationDataset = {
+  id: 'ds-mph-term1-baseline',
+  name: 'Public Health (MPH) — Term 1 Core Baseline',
+  description: 'Calibrated 4-module term curriculum demonstrating balanced ~41.7h/week average study load with late-term assessment clustering.',
+  settings: {
+    activePersonaId: 'ft',
+    trajectoryMode: 'linear'
+  },
   modules: [
     {
-      id: "mod-1",
-      code: "PH101",
-      title: "Foundations of Public Health",
+      id: 'mod-1',
+      code: 'PH101',
+      title: 'Foundations of Public Health',
       credits: 15,
       learningOutcomes: [
-        { id: "lo-1", description: "Analyze the historical evolution and core functions of public health." },
-        { id: "lo-2", description: "Identify the social determinants of health in diverse populations." }
+        { id: 'lo-1', description: 'Analyze the historical evolution and core functions of public health systems.' },
+        { id: 'lo-2', description: 'Evaluate social determinants of health and health equity interventions.' }
       ],
-      skillsGained: ["skill-health-systems", "skill-critical-analysis"]
+      skillsGained: ['skill-health-systems', 'skill-critical-analysis']
     },
     {
-      id: "mod-2",
-      code: "PH102",
-      title: "Introduction to Epidemiology",
+      id: 'mod-2',
+      code: 'PH102',
+      title: 'Introduction to Epidemiology',
       credits: 15,
       learningOutcomes: [
-        { id: "lo-3", description: "Apply basic epidemiological measures of disease frequency and association." },
-        { id: "lo-4", description: "Evaluate different study designs for public health research." }
+        { id: 'lo-3', description: 'Calculate and interpret standard epidemiological measures of morbidity and mortality.' },
+        { id: 'lo-4', description: 'Evaluate study designs for infectious and chronic disease surveillance.' }
       ],
-      skillsGained: ["skill-epi-reasoning", "skill-data-interpretation"]
+      skillsGained: ['skill-epi-reasoning', 'skill-data-interpretation']
     },
     {
-      id: "mod-3",
-      code: "PH201",
-      title: "Biostatistics for Health Research",
+      id: 'mod-3',
+      code: 'PH201',
+      title: 'Biostatistics for Health Research',
       credits: 15,
-      prerequisites: ["mod-2"],
+      prerequisites: ['mod-2'],
       learningOutcomes: [
-        { id: "lo-5", description: "Perform statistical hypothesis testing on health datasets." },
-        { id: "lo-6", description: "Interpret regression models in clinical and public health contexts." }
+        { id: 'lo-5', description: 'Execute parametric and non-parametric hypothesis testing on clinical datasets.' },
+        { id: 'lo-6', description: 'Interpret multivariable regression models in epidemiological research.' }
       ],
-      skillsGained: ["skill-statistical-analysis", "skill-data-interpretation"]
+      skillsGained: ['skill-statistical-analysis', 'skill-data-interpretation']
     },
     {
-      id: "mod-4",
-      code: "PH202",
-      title: "Health Systems and Policy",
+      id: 'mod-4',
+      code: 'PH202',
+      title: 'Health Systems and Policy',
       credits: 15,
-      prerequisites: ["mod-1"],
+      prerequisites: ['mod-1'],
       learningOutcomes: [
-        { id: "lo-7", description: "Compare international health system models and financing." },
-        { id: "lo-8", description: "Synthesize evidence to develop a health policy brief." }
+        { id: 'lo-7', description: 'Critique national health financing models and health reform strategies.' },
+        { id: 'lo-8', description: 'Synthesize health systems evidence into an executive policy brief.' }
       ],
-      skillsGained: ["skill-policy-analysis", "skill-health-systems"]
-    },
-    {
-      id: "mod-5",
-      code: "PH301",
-      title: "Global Health in Practice",
-      credits: 15,
-      prerequisites: ["mod-4"],
-      learningOutcomes: [
-        { id: "lo-9", description: "Analyze global health burden and interdisciplinary responses." },
-        { id: "lo-10", description: "Design a community health intervention for a low-resource setting." }
-      ],
-      skillsGained: ["skill-interdisciplinary-coord", "skill-community-engagement"]
-    },
-    {
-      id: "mod-6",
-      code: "PH302",
-      title: "Health Promotion and Prevention",
-      credits: 15,
-      learningOutcomes: [
-        { id: "lo-11", description: "Apply behavioral theories to health promotion strategies." },
-        { id: "lo-12", description: "Evaluate the effectiveness of disease prevention programmes." }
-      ],
-      skillsGained: ["skill-prog-implementation", "skill-community-engagement"]
-    },
-    {
-      id: "mod-7",
-      code: "PH401",
-      title: "Research Methods for Public Health",
-      credits: 15,
-      prerequisites: ["mod-2", "mod-3"],
-      learningOutcomes: [
-        { id: "lo-13", description: "Formulate a rigorous public health research proposal." },
-        { id: "lo-14", description: "Select appropriate qualitative and quantitative methods for inquiry." }
-      ],
-      skillsGained: ["skill-critical-analysis", "skill-epi-reasoning"]
-    },
-    {
-      id: "mod-8",
-      code: "PH402",
-      title: "Programme Monitoring and Evaluation",
-      credits: 15,
-      prerequisites: ["mod-7"],
-      learningOutcomes: [
-        { id: "lo-15", description: "Design a logic model for public health interventions." },
-        { id: "lo-16", description: "Develop a comprehensive monitoring and evaluation framework." }
-      ],
-      skillsGained: ["skill-evaluation-methods", "skill-prog-implementation"]
-    },
-    {
-      id: "mod-9",
-      code: "PH403",
-      title: "Health Inequalities",
-      credits: 15,
-      prerequisites: ["mod-1"],
-      learningOutcomes: [
-        { id: "lo-17", description: "Audit the structural drivers of health inequity." },
-        { id: "lo-18", description: "Propose equity-focused health interventions." }
-      ],
-      skillsGained: ["skill-policy-analysis", "skill-critical-analysis"]
-    },
-    {
-      id: "mod-10",
-      code: "PH404",
-      title: "Public Health Data Management",
-      credits: 15,
-      prerequisites: ["mod-3"],
-      learningOutcomes: [
-        { id: "lo-19", description: "Manage large-scale health informatics datasets." },
-        { id: "lo-20", description: "Ensure data privacy and security in health research." }
-      ],
-      skillsGained: ["skill-data-interpretation", "skill-statistical-analysis"]
+      skillsGained: ['skill-policy-analysis', 'skill-health-systems']
     }
   ],
   assessments: [
-    { id: "as-1", moduleId: "mod-1", name: "Reflective Practice Essay", type: "Essay", weight: 30, week: 4 },
-    { id: "as-2", moduleId: "mod-1", name: "Foundations Case Study", type: "Presentation", weight: 70, week: 11 },
-    { id: "as-3", moduleId: "mod-2", name: "Epidemiology Report", type: "Report", weight: 50, week: 6 },
-    { id: "as-4", moduleId: "mod-2", name: "Outbreak Simulation Analysis", type: "Exam", weight: 50, week: 12 },
-    { id: "as-5", moduleId: "mod-3", name: "Biostatistics Portfolio", type: "Portfolio", weight: 100, week: 12 },
-    { id: "as-6", moduleId: "mod-4", name: "Health Policy Brief", type: "Report", weight: 60, week: 8 },
-    { id: "as-7", moduleId: "mod-4", name: "Systems Analysis Presentation", type: "Presentation", weight: 40, week: 11 },
-    { id: "as-8", moduleId: "mod-5", name: "Community Intervention Proposal", type: "Project", weight: 100, week: 12 },
-    { id: "as-9", moduleId: "mod-6", name: "Health Promotion Campaign", type: "Project", weight: 50, week: 9 },
-    { id: "as-10", moduleId: "mod-7", name: "Formal Research Proposal", type: "Report", weight: 70, week: 10 },
-    { id: "as-11", moduleId: "mod-8", name: "Programme Evaluation Plan", type: "Report", weight: 80, week: 12 },
-    { id: "as-12", moduleId: "mod-9", name: "Equity Audit Report", type: "Report", weight: 50, week: 7 },
-    { id: "as-13", moduleId: "mod-10", name: "Data Management Lab", type: "Lab", weight: 40, week: 5 }
+    {
+      id: 'as-1',
+      moduleId: 'mod-1',
+      name: 'Reflective Practice Essay',
+      type: 'Essay',
+      weight: 30,
+      week: 4
+    },
+    {
+      id: 'as-2',
+      moduleId: 'mod-1',
+      name: 'Foundations Case Study Presentation',
+      type: 'Presentation',
+      weight: 70,
+      week: 11
+    },
+    {
+      id: 'as-3',
+      moduleId: 'mod-2',
+      name: 'Epidemiological Investigation Report',
+      type: 'Report',
+      weight: 50,
+      week: 6
+    },
+    {
+      id: 'as-4',
+      moduleId: 'mod-2',
+      name: 'Outbreak Analysis Examination',
+      type: 'Exam',
+      weight: 50,
+      week: 12
+    },
+    {
+      id: 'as-5',
+      moduleId: 'mod-3',
+      name: 'Statistical Data Lab Practical',
+      type: 'Lab',
+      weight: 40,
+      week: 7
+    },
+    {
+      id: 'as-6',
+      moduleId: 'mod-3',
+      name: 'Biostatistics Portfolio',
+      type: 'Portfolio',
+      weight: 60,
+      week: 12
+    },
+    {
+      id: 'as-7',
+      moduleId: 'mod-4',
+      name: 'Health Policy Executive Brief',
+      type: 'Report',
+      weight: 50,
+      week: 8
+    },
+    {
+      id: 'as-8',
+      moduleId: 'mod-4',
+      name: 'Systems Analysis Stakeholder Presentation',
+      type: 'Presentation',
+      weight: 50,
+      week: 11
+    }
   ],
   skills: [
-    { id: "skill-epi-reasoning", name: "Epidemiological Reasoning", level: 30 },
-    { id: "skill-statistical-analysis", name: "Statistical Analysis", level: 25 },
-    { id: "skill-policy-analysis", name: "Policy Analysis", level: 25 },
-    { id: "skill-prog-implementation", name: "Programme Implementation", level: 30 },
-    { id: "skill-evaluation-methods", name: "Evaluation Methods", level: 20 },
-    { id: "skill-community-engagement", name: "Community Engagement", level: 35 },
-    { id: "skill-health-systems", name: "Health Systems Thinking", level: 30 },
-    { id: "skill-critical-analysis", name: "Critical Analysis", level: 40 },
-    { id: "skill-data-interpretation", name: "Data Interpretation", level: 30 },
-    { id: "skill-interdisciplinary-coord", name: "Interdisciplinary Coordination", level: 20 }
+    { id: 'skill-health-systems', name: 'Health Systems Thinking', level: 30, category: 'Core Policy' },
+    { id: 'skill-critical-analysis', name: 'Critical Academic Analysis', level: 40, category: 'Academic' },
+    { id: 'skill-epi-reasoning', name: 'Epidemiological Reasoning', level: 35, category: 'Clinical & Epi' },
+    { id: 'skill-data-interpretation', name: 'Health Data Interpretation', level: 30, category: 'Analytics' },
+    { id: 'skill-statistical-analysis', name: 'Statistical Modelling', level: 25, category: 'Analytics' },
+    { id: 'skill-policy-analysis', name: 'Policy Analysis & Synthesis', level: 30, category: 'Core Policy' }
   ],
   workload: [
-    { moduleId: "mod-1", weeklyHours: [8, 8, 8, 12, 8, 8, 8, 8, 8, 10, 15, 10] },
-    { moduleId: "mod-2", weeklyHours: [10, 10, 10, 10, 10, 18, 10, 10, 10, 10, 12, 20] },
-    { moduleId: "mod-3", weeklyHours: [12, 12, 12, 12, 12, 12, 12, 15, 12, 12, 25, 25] },
-    { moduleId: "mod-4", weeklyHours: [8, 8, 8, 8, 8, 8, 8, 18, 10, 10, 18, 10] },
-    { moduleId: "mod-5", weeklyHours: [8, 8, 8, 10, 10, 10, 10, 10, 10, 10, 20, 25] },
-    { moduleId: "mod-6", weeklyHours: [8, 8, 8, 8, 8, 8, 8, 8, 18, 10, 10, 15] },
-    { moduleId: "mod-7", weeklyHours: [10, 10, 15, 10, 10, 10, 10, 10, 10, 20, 18, 15] },
-    { moduleId: "mod-8", weeklyHours: [10, 10, 10, 10, 10, 10, 10, 10, 10, 15, 15, 25] },
-    { moduleId: "mod-9", weeklyHours: [8, 8, 8, 8, 8, 8, 15, 10, 10, 10, 10, 10] },
-    { moduleId: "mod-10", weeklyHours: [10, 10, 10, 10, 15, 10, 10, 10, 10, 10, 10, 18] }
-  ]
+    // PH101: 120 hours total across 12 weeks (~10h/week average, peak in W4 for essay and W11 for presentation)
+    { moduleId: 'mod-1', weeklyHours: [9, 9, 9, 13, 9, 9, 9, 9, 10, 11, 14, 9] },
+    // PH102: 130 hours total across 12 weeks (peak in W6 for report and W12 for exam)
+    { moduleId: 'mod-2', weeklyHours: [10, 10, 10, 10, 10, 15, 10, 10, 10, 10, 11, 14] },
+    // PH201: 130 hours total across 12 weeks (peak in W7 for lab practical and W12 for portfolio)
+    { moduleId: 'mod-3', weeklyHours: [10, 10, 10, 10, 10, 10, 13, 10, 10, 10, 11, 16] },
+    // PH202: 120 hours total across 12 weeks (peak in W8 for policy brief and W11 for presentation)
+    { moduleId: 'mod-4', weeklyHours: [9, 9, 9, 9, 9, 9, 9, 14, 10, 11, 15, 7] }
+  ],
+  aiInvolvement: 'Synthesized illustrative curriculum structure designed to model realistic single-term higher education workload.',
+  assumptions: 'Assumes 60 UK credits (600 notional hours) across 12 weeks with 500 teaching block hours (~41.7 hours/week average) for a full-time student and 100 independent hours.',
+  risks: 'Assessment clustering in Week 11 (two presentations) and Week 12 (exam + portfolio) creates peak workload spikes requiring scenario mitigation.',
+  rationale: 'Calibrated to demonstrate practical scenario smoothing where shifting presentation deadlines flattens the end-of-term spike.',
+  reviewNotes: 'Verified for mathematical consistency and realistic academic load.'
 };

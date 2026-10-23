@@ -14,7 +14,10 @@ export const WorkloadAnalyzer: React.FC<WorkloadAnalyzerProps> = ({ dataset }) =
     <div className="workload-analyzer-container">
       <div className="workload-section-header">
         <h2>Workload Heatmap & Risk Signals</h2>
-        <p className="description">Structured modelling of student experience and potential pressure points in the curriculum.</p>
+        <p className="description">
+          Structured modelling of student experience and potential pressure points across the 12-week teaching period.
+          Models 500 hours of active teaching-period effort (~41.7h/week average); remaining notional hours (100h in a 60-credit term under the 1 UK credit = 10 notional hours framework) represent pre/post-term independent study, reading, and assessment revision.
+        </p>
       </div>
 
       <div className="workload-insights">

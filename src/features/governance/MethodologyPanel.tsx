@@ -10,8 +10,14 @@ export const MethodologyPanel: React.FC = () => {
 
       <div className="methodology-content">
         <section>
-          <h3>Workload Distribution Analysis</h3>
-          <p>Weekly workload is the summation of projected hours per week for all active health professional modules. Overload signals are triggered when the aggregate total exceeds 40h per week, reflecting periods of high clinical or research intensity.</p>
+          <h3>Workload Distribution & Credit Reconciliation</h3>
+          <p>
+            Weekly workload is the summation of scheduled study and assessment hours per week across all concurrent modules.
+            Under the standard UK credit framework (1 credit = 10 notional learning hours), a 60-credit term comprises 600 notional learning hours.
+            The 12-week active teaching block models 500 scheduled hours (120–130 hours per 15-credit module, averaging ~41.7 hours per week for full-time students).
+            The remaining 100 notional hours (25 hours per module on average) are allocated to pre-term preparation, reading periods, and post-term assessment reflection outside the 12-week teaching schedule.
+            Overload peak signals are triggered when weekly demands reach &ge; 45h, and sustained intensity is flagged for 3+ consecutive weeks exceeding 35h.
+          </p>
         </section>
 
         <section>
