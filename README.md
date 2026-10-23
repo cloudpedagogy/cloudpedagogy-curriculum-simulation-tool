@@ -25,78 +25,109 @@ Scenario risk signals and configuration trade-off reports for the **Programme Go
 
 ---
 
-## 🚀 Overview & Key Capabilities (Batch 1)
+## 🚀 Overview & Key Capabilities (Batches 1 & 2)
 
-1. **Blank-First Onboarding:**
+1. **Blank-First Onboarding & Workspace Foundations:**
    - Default blank canvas allowing educators to create an empty programme from scratch.
-   - Option to upload existing JSON workspaces or curriculum datasets.
+   - Option to upload existing JSON workspaces or curriculum datasets (`Schema 1.0.0`).
    - Distinct, clearly labelled sample demonstration mode.
 
-2. **Schema 1.0.0 & Protected Baseline Isolation:**
+2. **Protected Baseline Isolation & Multi-Scenario Management:**
    - Formal schema specification (`1.0.0`) with runtime Zod validation.
    - Immutable baseline protection: edits made in alternative scenarios never mutate the baseline curriculum.
    - Dedicated deep-cloning and defensive in-memory state preservation.
-
-3. **Multi-Scenario Management:**
-   - Create alternative scenarios branched from the protected baseline.
-   - Duplicate, rename, reset, and delete scenarios with confirmation.
+   - Branch alternative scenarios from baseline; duplicate, rename, reset, and delete with confirmation.
    - Explicit, audited baseline replacement with pre-replacement backup export.
 
-4. **Functional JSON Import & Export:**
-   - Export complete multi-scenario workspaces as versioned JSON.
-   - Export individual scenarios or baseline configurations.
-   - Non-destructive import validation: importing into an empty workspace establishes a coherent workspace with a clearly defined, isolated baseline.
-   - Importing into an existing workspace preserves the baseline, safely handles duplicate scenario IDs by renaming, deeply clones data structures to prevent shared mutation, rejects invalid foreign key references (e.g. assessments referencing non-existent modules), and repairs missing workload profiles.
-   - Failed imports safely preserve the current in-memory and stored workspace.
+3. **Credible Workload Simulation & Credit Reconciliation:**
+   - Strict adherence to the standard UK higher education credit convention: **one UK credit represents ten notional learning hours** (e.g. 60 credits = 600 notional hours).
+   - Clear, transparent distinction between total notional learning hours and hours scheduled within the simulated 12-week teaching period (e.g. 500 teaching block hours + 100 independent study, reading, and revision hours).
+   - Authoritative planning thresholds: **Overload** ($\ge 45\text{h}$), **High** ($\ge 35\text{h}$), **Standard Planning Target** ($40\text{h}$), **Moderate** ($20\text{h}$), **Spike Delta** ($\ge 15\text{h}$ jump between adjacent weeks).
+   - Consistent persona scaling across all analytical panels: Full-time (1.0x), Part-time (0.5x), Intensive (1.2x).
+   - Missing profile data is rigorously distinguished from confirmed zero workload.
 
-5. **Safe Storage & Resilience:**
-   - Automatic migration from legacy `curriculum_sim_current_dataset` format to Schema 1.0.0; original storage records are preserved intact until validation and persistence succeed.
-   - Storage write/quota failures trigger clear error banners without misleading success indicators.
-   - Users can export the latest in-memory workspace as JSON immediately following a save failure.
-   - Corrupted storage is detected and preserved in local storage until explicitly reset, with a one-click download for raw corrupted text.
-   - Exiting demo mode or resetting workspace triggers an explicit confirmation dialogue to prevent accidental data loss.
+4. **Direct Scenario Authoring & Modelling:**
+   - **Cell-level workload editing:** Directly modify individual weekly hours across all 12 weeks for any module.
+   - **Hour redistribution tools:** "Distribute Evenly" across all teaching weeks and "Smooth Peak Weeks" to cap peaks and relieve pressure.
+   - **Assessment editing:** Move deadlines (Weeks 1–12), adjust grading weights (0–100%), modify evaluation types, or add new assessment tasks.
+   - **Module management with referential integrity cascade:** Add modules, adjust credits with live notional-hour recalculation, or delete modules with automatic cascade removing associated workload profiles and assessments.
+   - **Reset alternative scenario:** Revert any scenario to its protected baseline reference state with confirmation.
 
-6. **Calibrated Illustrative Demonstration:**
-   - Coherent 4-module single-term Public Health curriculum (60 UK credits total, 15 credits each).
-   - Clear equivalence: 1 UK credit = 10 notional learning hours (600 notional hours total, 150 hours per module).
-   - Delivery distribution: 500 hours occur during the 12 active teaching weeks (120–130 hours per module, averaging ~41.7 hours/week across 4 modules for a full-time student).
-   - The remaining 100 notional hours (25 hours per module on average) are allocated for pre-term preparation, reading week consolidation, and post-term examination revision / feedback reflection.
-   - Realistic assessment deadlines featuring intentional late-term congestion in Weeks 11 & 12 for scenario testing.
+5. **Assessment Congestion & Credit-Weighted Programme Pressure:**
+   - Calculates true programme-wide assessment pressure using credit-weighting: $\text{Programme Weight}_a = W_a \times \frac{C_m}{C_{\text{total}}}$, avoiding invalid percentage sums across unrelated modules.
+   - Transparent congestion rules: 3+ deadlines in a single week, or 2+ deadlines across distinct modules with $\ge 20\%$ total programme assessment load.
+   - Explicit identification of high-stakes deadlines ($\ge 40\%$ module weight or $\ge 25\%$ programme assessment load).
+   - Distinguishes unassigned assessments (missing teaching week) from confirmed absence of deadlines.
 
----
+6. **Honest Skill Exposure & Assessment Evidence:**
+   - Completely removes misleading pseudo-mathematical "% mastery" calculations.
+   - Transparent curriculum exposure metrics: number of modules addressing each competency, active practice weeks, and developmental sequence (Introduction $\rightarrow$ Reinforcement $\rightarrow$ Integrated Practice).
+   - Maps documented assessment evidence for each competency.
+   - Pedagogical distinction: repeated exposure represents structured opportunities to practice; it does not guarantee demonstrated student competence without supporting assessment evidence.
 
-## 📊 Current Simulation Methodology & Heuristics
+7. **Multi-Scenario Comparison Dashboard:**
+   - Flexible configuration selectors: Baseline vs Scenario A, Scenario A vs Scenario B, or custom scenario comparisons.
+   - Comparative metrics grid: scheduled workload delta, peak pressure delta, overload weeks delta ($\ge 45\text{h}$), congested weeks delta, credit delta, and module counts.
+   - **Responsive SVG Workload Pressure Curve:** Contrasts weekly workload curves with dual visual encoding (solid line + circle markers for Config A; dashed line + diamond markers for Config B) so visualisations do not rely on colour alone. Includes 40h standard target and 45h overload threshold reference lines.
+   - **Accessible tabular equivalent:** Comprehensive semantic comparison table with explicit text direction indicators (`↑ Increased`, `↓ Decreased`, `= Unchanged`) and threshold status badges.
 
-The tool models curriculum configurations using transparent heuristic rules:
-
-### Workload Signals
-- **Overload Peak:** $\ge 45$ hours total weekly workload.
-- **Workload Spike:** $\ge 15$ hours increase between adjacent weeks.
-- **Sustained Intensity:** 3+ consecutive weeks of high ($\ge 35\text{h}$) or overload intensity.
-
-### Assessment Signals
-- **High-Stakes Cluster:** Combined assessment weighting in a single week $\ge 50\%$ (Critical).
-- **Assessment Congestion:** $\ge 3$ assessment deadlines in a single week (Critical).
-- **Limited Method Diversity:** Fewer than 3 unique evaluation types across the curriculum.
-
-### Competency Scaffolding
-- Tracks competency exposure across modules (Introductory $\rightarrow$ Reinforcement $\rightarrow$ Advanced).
-- Flags competencies introduced late in the term (after Week 4) or lacking reinforcement (single-module usage).
-- *Transparency Note:* Growth curves are qualitative pedagogical heuristics indicating exposure frequency, not empirical or psychological measures of student mastery.
+8. **Rule-Based Planning Suggestions:**
+   - Replaced speculative "AI" labels with transparent, deterministic pedagogical planning heuristics.
+   - Actionable, verified mutations: assessment deadline redistribution, workload peak smoothing, and assessment evidence generation for unassessed competencies.
+   - Clear educational rationales and modelled impact summaries for every recommendation.
 
 ---
 
-## 🔮 Roadmap: Outstanding Batches
+## 📊 Simulation Methodology & Planning Assumptions
 
-CST is being developed in three disciplined batches:
+All calculations in CST are deterministic, reproducible, and transparent:
 
-- **Batch 1 (Current Baseline):** Versioned data foundations (`Schema 1.0.0`), immutable baseline protection, multi-scenario branching, functional JSON import/export, blank-first onboarding, calibrated MPH demo data, storage quota resilience, and automated regression testing.
-- **Batch 2 (Simulation Enhancements):** Cross-scenario comparison matrix, visual workload diffing, parameter-driven sensitivity analysis, cell-level weekly hour editing, and upgraded AI suggestion logic.
-- **Batch 3 (Release Hardening):** Comprehensive WCAG 2.1 AA accessibility audit, cross-browser compatibility testing, responsive layout polish, end-to-end browser acceptance, and performance benchmarking.
+### UK Credit & Notional Hour Convention
+- $1\text{ UK Credit} = 10\text{ Notional Learning Hours}$.
+- A standard 60-credit term represents 600 notional learning hours.
+- In the calibrated baseline model, 500 hours are scheduled across the 12-week teaching block (~41.7h/week average for a full-time student), with 100 hours allocated for pre-term preparation, reading/consolidation periods, and post-term examination revision.
+- CST transparently displays this reconciliation and does not treat non-teaching independent hours as an error.
+
+### Workload Thresholds (Planning Assumptions)
+- **Overload Threshold:** $\ge 45.0\text{h}$ total weekly study time.
+- **High Workload Threshold:** $\ge 35.0\text{h}$ total weekly study time.
+- **Standard Planning Target:** $40.0\text{h}$ full-time study target.
+- **Moderate Threshold:** $\ge 20.0\text{h}$ total weekly study time.
+- **Workload Spike:** An increase of $\ge 15.0\text{h}$ between adjacent teaching weeks.
+- **Sustained Overload:** 3 or more consecutive weeks with total workload $\ge 35.0\text{h}$.
+- *Note:* These thresholds represent illustrative planning assumptions, not universal institutional standards.
+
+### Assessment Congestion Criteria
+- **Congested Week:** $\ge 3$ assessment deadlines in the same week, or $\ge 2$ deadlines across distinct modules with $\ge 20\%$ total programme assessment load.
+- **High-Stakes Week:** Any week containing an individual module assessment with $\ge 40\%$ weight, or a combined programme assessment load $\ge 25\%$.
+- **Programme Assessment Load:** Calculated as $(W_a \times C_m) / C_{\text{total}}$.
+
+### Current Academic Calendar Limitations
+- CST currently models curriculum workload and assessments across a **12-week teaching period**.
+- Future roadmap phases (Curriculum Studio integration) will support multi-term and variable-length academic calendar structures as institutional requirements dictate.
 
 ---
 
-## 🛠️ Development & Verification Commands
+## 🔮 Roadmap: Remaining Hardening (Batch 3)
+
+- **Batch 1 (Completed):** Versioned data foundations (`Schema 1.0.0`), baseline isolation, multi-scenario branching, JSON import/export, blank-first onboarding, calibrated demo data, and storage resilience.
+- **Batch 2 (Completed):** Authoritative workload reconciliation, threshold boundary rigor, credit-weighted assessment congestion, honest skill exposure, cell-level scenario editing, multi-scenario comparison dashboard, responsive SVG pressure curves with accessible tabular equivalents, and rule-based planning heuristics.
+- **Batch 3 (Planned Hardening):** Full WCAG 2.1 AA accessibility audit, cross-browser compatibility verification, responsive design polish, and performance benchmarking.
+
+---
+
+## 🛠️ Verification & Quality Checks
+
+Run the verification pipeline:
+
+```bash
+git diff --check
+npm test
+npm run typecheck
+npm run lint
+npm run build
+```
+
 
 ### Prerequisites
 - Node.js (v18+)
@@ -118,16 +149,17 @@ npm run dev
 All changes must pass the full five-check verification pipeline:
 ```bash
 git diff --check     # Check whitespace and formatting
-npm test             # Run Vitest automated test suite (40 tests)
+npm test             # Run Vitest automated test suite (57 tests)
 npm run typecheck    # Run TypeScript compiler verification (tsc -b)
 npm run lint         # Run ESLint with zero errors or warnings
 npm run build        # Build production bundle with Vite
 ```
 
 ### Browser Automation & Acceptance Status
-- The test suite comprises **40 passing automated tests** across unit, schema, storage, simulation calculations, and component rendering in a jsdom environment.
+- The test suite comprises **57 passing automated tests** across unit, schema, storage, simulation calculations, threshold boundaries, scenario editing, redistribution integrity, comparisons, and component rendering in a jsdom environment.
 - Due to headless browser Chrome DevTools Protocol (CDP) connection limitations in the current local environment, end-to-end real browser automation was not executed during this verification cycle.
 - **No formal accessibility certification or full production release readiness is claimed.** Manual cross-browser validation remains required prior to formal release.
+
 
 ---
 

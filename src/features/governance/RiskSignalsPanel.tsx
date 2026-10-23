@@ -1,4 +1,5 @@
 import React from 'react';
+import { calculateWeeklyWorkload, generateWorkloadSignals } from '../../lib/simulation/workload';
 import { analyzeAssessments } from '../../lib/simulation/assessment';
 import { analyzeSkillProgression } from '../../lib/simulation/skills';
 import type { SimulationDataset } from '../../types';
@@ -8,19 +9,10 @@ interface RiskSignalsPanelProps {
 }
 
 export const RiskSignalsPanel: React.FC<RiskSignalsPanelProps> = ({ dataset }) => {
+  const weeklyData = calculateWeeklyWorkload(dataset);
+  const workloadSignals = generateWorkloadSignals(weeklyData);
   const { signals: assessmentSignals } = analyzeAssessments(dataset);
   const { signals: skillSignals } = analyzeSkillProgression(dataset);
-
-  // Calculate workload signals
-  const workloadSignals: { message: string, severity: 'warning' | 'info' | 'critical' }[] = [];
-  for (let i = 0; i < 12; i++) {
-    const totalHours = dataset.workload.reduce((sum, p) => sum + (p.weeklyHours[i] || 0), 0);
-    if (totalHours > 45) {
-      workloadSignals.push({ message: `Critical overload risk in Week ${i + 1} (${totalHours}h)`, severity: 'critical' });
-    } else if (totalHours > 40) {
-      workloadSignals.push({ message: `High workload in Week ${i + 1} (${totalHours}h)`, severity: 'warning' });
-    }
-  }
 
   const allSignals = [
     ...workloadSignals.map(s => ({ ...s, category: 'Workload' })),

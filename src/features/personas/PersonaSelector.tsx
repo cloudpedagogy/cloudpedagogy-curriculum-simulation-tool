@@ -11,36 +11,71 @@ export const PersonaSelector: React.FC<PersonaSelectorProps> = ({
   onSelectPersona 
 }) => {
   return (
-    <div className="persona-selector-container p-4 bg-slate-50 rounded-lg border border-slate-200">
-      <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+    <div className="persona-selector-container" style={{
+      padding: '1.25rem',
+      backgroundColor: '#F9FAFB',
+      borderRadius: '8px',
+      border: '1px solid var(--border-color)'
+    }}>
+      <h3 style={{
+        fontSize: '0.875rem',
+        fontWeight: 700,
+        color: 'var(--color-text-primary)',
+        marginBottom: '0.75rem',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '0.5rem'
+      }}>
         <span>👤 Student Persona Modelling</span>
       </h3>
-      <div className="flex flex-col gap-2">
-        {PERSONAS.map(persona => (
-          <button
-            key={persona.id}
-            onClick={() => onSelectPersona(persona.id)}
-            className={`flex flex-col p-3 rounded-lg border transition-all text-left ${
-              activePersonaId === persona.id 
-                ? 'bg-blue-600 border-blue-700 text-white shadow-md' 
-                : 'bg-white border-slate-200 text-slate-600 hover:border-blue-400'
-            }`}
-          >
-            <div className="flex justify-between items-center mb-1">
-              <span className="font-bold text-sm">{persona.name}</span>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded ${
-                activePersonaId === persona.id ? 'bg-blue-500' : 'bg-slate-100 text-slate-500'
-              }`}>
-                {persona.workloadMultiplier * 100}% Load
-              </span>
-            </div>
-            <p className={`text-[10px] leading-tight ${
-              activePersonaId === persona.id ? 'text-blue-100' : 'text-slate-400'
-            }`}>
-              {persona.description}
-            </p>
-          </button>
-        ))}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        {PERSONAS.map(persona => {
+          const isActive = activePersonaId === persona.id;
+          return (
+            <button
+              key={persona.id}
+              type="button"
+              onClick={() => onSelectPersona(persona.id)}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                padding: '0.75rem',
+                borderRadius: '6px',
+                border: isActive ? '1px solid #1D4ED8' : '1px solid #E5E7EB',
+                backgroundColor: isActive ? '#1E40AF' : '#FFFFFF',
+                color: isActive ? '#FFFFFF' : 'var(--color-text-primary)',
+                textAlign: 'left',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                <span style={{ fontWeight: 600, fontSize: '0.8125rem' }}>{persona.name}</span>
+                <span style={{
+                  fontSize: '10px',
+                  fontWeight: 600,
+                  padding: '0.125rem 0.375rem',
+                  borderRadius: '3px',
+                  backgroundColor: isActive ? '#2563EB' : '#F3F4F6',
+                  color: isActive ? '#FFFFFF' : '#4B5563'
+                }}>
+                  {persona.workloadMultiplier * 100}% Load
+                </span>
+              </div>
+              <p style={{
+                fontSize: '11px',
+                lineHeight: '1.3',
+                margin: 0,
+                color: isActive ? '#DBEAFE' : '#6B7280'
+              }}>
+                {persona.description}
+              </p>
+            </button>
+          );
+        })}
+      </div>
+      <div style={{ marginTop: '0.75rem', fontSize: '10px', color: '#6B7280', lineHeight: 1.3 }}>
+        * <em>Planning Notice:</em> Multipliers scale weekly workload as an illustrative sensitivity heuristic across the 12-week block. Part-time is not a multi-year stretched schedule, and intensive is not a validated compressed calendar.
       </div>
     </div>
   );

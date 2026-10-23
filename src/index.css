@@ -478,6 +478,16 @@ h1 {
   background: #F9FAFB;
 }
 
+.cluster-cell.congested {
+  border-color: #F59E0B;
+  background: #FFFBEB;
+}
+
+.cluster-cell.congested.high-stakes {
+  border-color: #DC2626;
+  background: #FEF2F2;
+}
+
 .asmt-count {
   font-size: 0.8125rem;
   font-weight: 700;

@@ -7,6 +7,7 @@ import { WorkloadAnalyzer } from './features/workload/WorkloadAnalyzer';
 import { AssessmentAnalyzer } from './features/assessments/AssessmentAnalyzer';
 import { SkillProgressionView } from './features/skills/SkillProgressionView';
 import { ScenarioEditor } from './features/scenarios/ScenarioEditor';
+import { ComparisonDashboard } from './features/scenarios/ComparisonDashboard';
 import { ValidationWarnings } from './features/governance/ValidationWarnings';
 import { MethodologyPanel } from './features/governance/MethodologyPanel';
 import { RiskSignalsPanel } from './features/governance/RiskSignalsPanel';
@@ -560,6 +561,7 @@ function App() {
                 <h2 style={{ fontSize: '1.25rem', marginBottom: '1.5rem', fontWeight: 600 }}>Scenario Testing & Modelling</h2>
                 <ScenarioEditor
                   dataset={activeDataset}
+                  isBaseline={workspace.activeScenarioId === null}
                   onUpdate={handleUpdateDataset}
                   onReset={() => {
                     if (workspace.activeScenarioId) {
@@ -567,6 +569,8 @@ function App() {
                     }
                   }}
                 />
+
+                <ComparisonDashboard workspace={workspace} />
               </section>
 
               {/* Analytical Views */}
